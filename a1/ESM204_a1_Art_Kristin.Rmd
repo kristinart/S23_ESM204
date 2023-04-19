@@ -10,6 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(pracma)
 ```
+## {.tabset}
 
 ### Task 1: R Basics
 #### Part 1a
@@ -29,8 +30,9 @@ compute_Y = function(X, a, b){
 
 #define values
 X = 5
-b = 10
 a = 3
+b = 10
+
 
 #apply function 
 result = compute_Y(X, a, b)
@@ -51,8 +53,8 @@ X = base::seq(from = 0, to = 10, by = 1)
 
 #create df
 df = data.frame(
-  a = a,
-  b = b,
+  a = c(a),
+  b = c(b),
   X = c(X),
   Y = compute_Y(X, a, b)
   )
@@ -65,6 +67,7 @@ print(df)
 #plot results from part c 
 plot_1 = ggplot(data = df, aes(X, Y))+
   geom_line(aes(X, Y, color = 'coral'))+
+  geom_point(aes(X, Y, color = 'coral'), size = 3)+
   theme_minimal()+
   theme(legend.position = 'none')
 
@@ -85,12 +88,10 @@ F2 = function(X, a2, b2){
 }
 
 F3 = function(X, a1, b1, a2, b2){
-  F1_result = F1(X, a1, b1)
-  F2_result = F2(X, a2, b2)
-  Z = F1_result - F2_result
+  Z = F1(X, a1, b1) - F2(X, a2, b2)
   return(Z)
 }
-
+  
 #define values
 a1 = -2
 b1 = 100
@@ -99,6 +100,7 @@ b2 = 0
 
 #find the intersection of the two curves 
 X_star = pracma::fzero(fun = F3, x = c(-100, 100), a1 = a1, b1 = b1, a2 = a2, b2 = b2)[[1]]
+
 #an alternative way to use the fzero function:
 #X_star = pracma::fzero(function(x) F3(x, a1=a1, b1=b1, a2= a2, b2 = b2), 10)[[1]]
 Y_star = F1(X = X_star, a1 = a1, b1 = b1)
@@ -112,7 +114,7 @@ print(results)
 #check algebra for part e answer
 #calculate X*
 #F1 = F2
-#-2X + 100 = 3x + 0
+#-2X + 100 = 3X + 0
 #5X = 100
 #X = 20
 
@@ -152,25 +154,51 @@ To solve for the equilibrium P, plug the equilibrium Q into either the supply or
 $$P = 400 - 0.05(3800)$$
 $$P = 400 - 190$$
 $$P* = 210$$
-To measure the benefit of the new market to food banks that buy peanut butter, we could calculate the consumer surplus (CS). To do so, we would subtract the price the food bank buyers pay for peanut butter from their total willingness to pay for peanut butter. Similarly, to measure the benefit of the new market to food banks that sell peanut butter, we could calculate the producer surplus (PS). To do so, we subtract the total variable costs of supplying that peanut butter from the total revenue those producers make.  
+To measure the benefit of the new market to food banks that buy peanut butter, we could calculate the consumer surplus (CS). To do so, we would subtract the price the food bank buyers pay for peanut butter from their total willingness to pay for peanut butter. Similarly, to measure the benefit of the new market to food banks that sell peanut butter, we could calculate the producer surplus (PS). To do so, we subtract the total variable costs of supplying that peanut butter from the total revenue those producers make. Below we calculate the CS and PS by calculating the area under the demand and supply curves and find that both CS and PS are equal to 361,000 credits. 
 
-We could also measure the benefit of the new market to food banks that buy peanut butter by looking at the difference in the price they are able to buy peanut butter in the new market against the price they would have paid for peanut butter in the traditional market. Similarly, we could measure the benefit of the new market to food banks that sell peanut butter by looking at the difference in the price they are able to sell peanut butter in the new market against the price they are able to sell peanut butter in the traditional market. We would need to decide how the value of a credit is related to the value of a traditional dollars to do these comparisons and make sure to compare the same quantity/ amount of peanut butter.
+```{r}
+#define equilibrium values
+Q_star = 3800
+P_star = 210
+
+#define functions
+demand_compute_P = function(Q){
+ P = 400 - .05*(Q) 
+ return(P)
+}
+
+supply_compute_P = function(Q){
+ P = 20 + .05*Q 
+ return(P)
+}
+
+#find consumer surplus
+total_CS = integral(f = demand_compute_P, xmin = 0, xmax = 3800)
+CS = total_CS - (P_star*Q_star)
+
+#find producer surplus
+total_PS = integral(f = supply_compute_P, xmin = 0, xmax = 3800)
+PS = abs(total_PS - (P_star*Q_star))
+
+results = paste0("At the equilibrium Q (", Q_star, ") and P (", P_star, "), the consumer surplus (CS) is " , CS , " and the producer surplus (PS) is " , PS)
+print(results)
+```
 
 #### Part 2b
-If each jar of peanut butter that is transacted imposes an externality that is equivalent to 50 credits, this should change the amount of trade by food banks. To account for this externality, the food bank market could be changed by adding a tax to each peanut butter jar transaction of 50 credits per jar. This would act as an incentive to reduce the amount of trade, which would limit the total externality cost. 
+If each jar of peanut butter that is transacted imposes an externality that is equivalent to 50 credits, this should change the amount of peanut butter trade by food banks. To account for this externality, the food bank market could be changed by adding a tax to each peanut butter jar transaction of 50 credits per jar. This would act as an incentive to reduce the amount of trade, which would limit the total externality cost. Fewer peanut butter jars will be traded at the higher equilibrium price with this change.
 
 The new equilibrium price would be 235 credits per jar and the new equilibrium quantity would be 3300 jars of peanut butter. 
 
 **New Supply Curve:**
-$$P_{supply-new} = 20 + 0.05Q + 50$$
-$$P_{supply-new} = 70 + 0.05Q$$
+$$P_{supply2} = 20 + 0.05Q + 50$$
+$$P_{supply2} = 70 + 0.05Q$$
 The demand curve would remain unchanged.
 
 **Demand Curve:**
 $$P_{demand} = 400 - 0.05Q$$
 
 To calculate the new equilibrium Q, we set the demand curve equal to the new supply curve and solve for Q. 
-$$P_{demand} = P_{supply-new}$$
+$$P_{demand} = P_{supply2}$$
 $$400 - 0.05Q = 70 + 0.05Q$$
 $$400 - 70 = 0.1Q$$
 $$0.1Q = 330$$
@@ -207,9 +235,9 @@ supply_compute_Q = function(P){
 
 #apply functions
 P = 1000
-Q_star = supply_compute_Q(P)
+Q  = supply_compute_Q(P)
 
-results = paste0("When the price for an inefficient car is $1000, the equilibrium quantity, Q*, is " , Q_star, ".")
+results = paste0("When the price for an inefficient car is $1000, the equilibrium quantity, Q, is " , Q, ".")
 print(results)
 
 ```
@@ -234,17 +262,33 @@ print(results)
 
 *Part 3a iii*
 
-The owners of old cars benefit because they own an object that the program values at $1000 and can profit by selling their cars to the program. An old and inefficient car may not be worth as much in the traditional market, so these old car owners would benefit from the program's buyback policy. The old car owners, as well as the collective public, also benefit from the shared environmental and health benefits that result when fewer old cars are on the roads polluting.
+The owners of old cars benefit because they own an object that the program values at $1000 and can profit by selling their cars to the program. An old inefficient car may not be worth as much in the traditional market, so these old car owners would benefit from the program's buyback policy. This benefit could be quantified by calculating the producer surplus. The old car owners, as well as the collective public, also benefit from the shared environmental and health benefits that result when fewer old cars are on the roads polluting.
+
+```{r}
+P_star = P
+Q_star = Q
+
+#find producer surplus
+total_PS = integral(f = supply_compute_P, xmin = 0, xmax = 465)
+PS = abs(total_PS - (P_star*Q_star))
+
+results = paste0("At Q = ", Q_star, " and P = ", P_star, ", the producer surplus (PS) is " , PS)
+print(results)
+```
 
 
 *Part 3a iv*
 
-The program and the subsidies offered are paid for by government funds, which is a cost to taxpayers. The taxpayers therefore lose out on the taxes they paid, but they also benefit from the shared environmental and health benefits of reduced pollutants in the environment.
+The program and the subsidies offered are paid for by government funds, which is a cost to taxpayers. This cost can be quantified by multiplying the quantity of cars sold to the program and the subsidy price, as shown below:
+
+$$P*Q = 1000*465 = 465,000$$
+
+The total cost to taxpayers is therefore about $450,000, but they also benefit from the shared environmental and health perks of reduced pollutants in the environment.
 
 #### Part b
 **Demand Curve**
 $$P_{demand} = MB = 1500 - 0.4Q^{1.2}$$
-If the marginal benefit of removing old cars (environmental, health, etc.) is given by the equation above, then the socially optimal number of cars to remove is approximately 624 cars and the socially optimal subsidy to offer is approximately $1410.
+If the marginal benefit of removing old cars (environmental, health, etc.) is given by the equation above, then the socially optimal number of cars to remove is approximately 624 and the socially optimal subsidy to offer is approximately $1410.
 ```{r}
 #define functions
 #demand curve
