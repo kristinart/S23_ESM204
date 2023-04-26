@@ -105,7 +105,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="simulating-carbon-abatement" class="level2">
 <h2 class="anchored" data-anchor-id="simulating-carbon-abatement">Simulating Carbon Abatement</h2>
-<p>In this homework you will be simulating alternative approaches for reducing carbon emissions among four UC campuses (UCSB, UCLA, UCI, and UCD). The dataset for this assignment is available in the file “CarbonUC.csv”, available on Canvas. The dataset contains estimates of the marginal cost of reducing carbon emission for each campus for different levels of abatement (in tons of carbon). A few notes: ● Current (i.e.&nbsp;baseline) emission for each campus are: UCSB = 90,000 tons, UCLA = 250,000 tons, UCI = 100,000 tons, UCD = 160,000 tons. ● Prices are in $/ton and quantities are in tons of CO2. ● Before opening R, I recommend drawing graphs by hand to make sure you know what you want to do Please answer the following questions:</p>
+<p>In this homework you will be simulating alternative approaches for reducing carbon emissions among four UC campuses (UCSB, UCLA, UCI, and UCD). The dataset for this assignment is available in the file “CarbonUC.csv”, available on Canvas. The dataset contains estimates of the marginal cost of reducing carbon emission for each campus for different levels of abatement (in tons of carbon). A few notes: ● Current (i.e.&nbsp;baseline) emission for each campus are: UCSB = 90,000 tons, UCLA = 250,000 tons, UCI = 100,000 tons, UCD = 160,000 tons. ● Prices are in $/ton and quantities are in tons of CO2. ● Before opening R, I recommend drawing graphs by hand to make sure you know what you want to do Please answer the following questions: ## Change value_to = ‘mc’</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#import data</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>emissions <span class="ot">=</span> <span class="fu">read_csv</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"a2"</span>,<span class="st">"CarbonUC.csv"</span>)) <span class="sc">%&gt;%</span> </span>
@@ -135,11 +135,12 @@ dbl (5): Abatement, UCSB, UCLA, UCI, UCD
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(emissions, <span class="fu">aes</span>(<span class="at">x =</span> abatement, <span class="at">y =</span> reduction, <span class="at">color =</span> site)) <span class="sc">+</span> </span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>() <span class="sc">+</span> </span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>() <span class="sc">+</span> </span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#679289"</span>,<span class="st">"#9C964A"</span>,<span class="st">"#FDD262"</span>,<span class="st">"#D6604D"</span>))<span class="sc">+</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">" UC Marginal Abatement Cost (MAC) for Carbon "</span>, <span class="at">y =</span> <span class="st">"$/ton of carbon"</span>, <span class="at">x =</span> <span class="st">"Tons of carbon abated"</span>) <span class="sc">+</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() </span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>plot_1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="co">#geom_abline(slope = ucsb_slope)+</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#679289"</span>,<span class="st">"#9C964A"</span>,<span class="st">"#FDD262"</span>,<span class="st">"#D6604D"</span>))<span class="sc">+</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">" Marginal Abatement Cost"</span>, <span class="at">y =</span> <span class="st">"$/ton of carbon"</span>, <span class="at">x =</span> <span class="st">"Tons of carbon abated"</span>) <span class="sc">+</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() </span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>plot_1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>`geom_smooth()` using method = 'loess' and formula = 'y ~ x'</code></pre>
 </div>
@@ -183,29 +184,28 @@ dbl (5): Abatement, UCSB, UCLA, UCI, UCD
 <span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>      site <span class="sc">==</span> <span class="st">'ucsb'</span> <span class="sc">~</span> ucsb_slope,</span>
 <span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>      site <span class="sc">==</span> <span class="st">'ucla'</span> <span class="sc">~</span> ucla_slope,</span>
 <span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>      site <span class="sc">==</span> <span class="st">'uci'</span> <span class="sc">~</span> uci_slope,</span>
-<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>      site <span class="sc">==</span> <span class="st">'ucd'</span> <span class="sc">~</span> ucd_slope))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">#write out the MAC equations</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>equatiomatic<span class="sc">::</span><span class="fu">extract_eq</span>(ucsb_lm, <span class="at">use_coefs =</span> <span class="cn">TRUE</span>, <span class="at">coef_digits =</span> <span class="dv">8</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>      site <span class="sc">==</span> <span class="st">'ucd'</span> <span class="sc">~</span> ucd_slope))</span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a><span class="co">#write out the MAC curve equations</span></span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>equatiomatic<span class="sc">::</span><span class="fu">extract_eq</span>(ucsb_lm, <span class="at">use_coefs =</span> <span class="cn">TRUE</span>, <span class="at">coef_digits =</span> <span class="dv">8</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><span class="math display">\[
 \operatorname{\widehat{reduction}} = 0.0010042(\operatorname{abatement})
 \]</span></p>
 </div>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>equatiomatic<span class="sc">::</span><span class="fu">extract_eq</span>(ucla_lm, <span class="at">use_coefs =</span> <span class="cn">TRUE</span>, <span class="at">coef_digits =</span> <span class="dv">8</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>equatiomatic<span class="sc">::</span><span class="fu">extract_eq</span>(ucla_lm, <span class="at">use_coefs =</span> <span class="cn">TRUE</span>, <span class="at">coef_digits =</span> <span class="dv">8</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><span class="math display">\[
 \operatorname{\widehat{reduction}} = 0.00070143(\operatorname{abatement})
 \]</span></p>
 </div>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>equatiomatic<span class="sc">::</span><span class="fu">extract_eq</span>(ucd_lm, <span class="at">use_coefs =</span> <span class="cn">TRUE</span>, <span class="at">coef_digits =</span> <span class="dv">8</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>equatiomatic<span class="sc">::</span><span class="fu">extract_eq</span>(ucd_lm, <span class="at">use_coefs =</span> <span class="cn">TRUE</span>, <span class="at">coef_digits =</span> <span class="dv">8</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><span class="math display">\[
 \operatorname{\widehat{reduction}} = 0.00302414(\operatorname{abatement})
 \]</span></p>
 </div>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>equatiomatic<span class="sc">::</span><span class="fu">extract_eq</span>(uci_lm, <span class="at">use_coefs =</span> <span class="cn">TRUE</span>, <span class="at">coef_digits =</span> <span class="dv">8</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>equatiomatic<span class="sc">::</span><span class="fu">extract_eq</span>(uci_lm, <span class="at">use_coefs =</span> <span class="cn">TRUE</span>, <span class="at">coef_digits =</span> <span class="dv">8</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><span class="math display">\[
 \operatorname{\widehat{reduction}} = 0.00200773(\operatorname{abatement})
@@ -217,49 +217,91 @@ dbl (5): Abatement, UCSB, UCLA, UCI, UCD
 </ol>
 <p>UCD is willing to pay the most for the first ton of carbon emissions.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">#define generic demand function</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>compute_demand_P <span class="ot">=</span> <span class="cf">function</span>(slope, baseline, emissions){</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  demand <span class="ot">=</span> slope<span class="sc">*</span>(baseline <span class="sc">-</span> emissions)</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(demand)</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co">#apply demand function and save results in main df</span></span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>emissions_mod <span class="ot">=</span> emissions_mod <span class="sc">%&gt;%</span> </span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">demand =</span> <span class="fu">compute_demand_P</span>(slope, baseline, abatement))</span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="co">#create linear models of demand (not necessary)</span></span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>ucsb_d_df <span class="ot">=</span> emissions_mod <span class="sc">%&gt;%</span> </span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(site <span class="sc">==</span> <span class="st">"ucsb"</span>)</span>
-<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>ucsb_d_lm <span class="ot">&lt;-</span> <span class="fu">lm</span>(demand <span class="sc">~</span> abatement, <span class="at">data =</span> ucsb_d_df)</span>
-<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>ucla_d_df <span class="ot">=</span> emissions_mod <span class="sc">%&gt;%</span> </span>
-<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(site <span class="sc">==</span> <span class="st">"ucla"</span>)</span>
-<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>ucla_d_lm <span class="ot">&lt;-</span> <span class="fu">lm</span>(demand <span class="sc">~</span> abatement, <span class="at">data =</span> ucla_d_df)</span>
-<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>uci_d_df <span class="ot">=</span> emissions_mod <span class="sc">%&gt;%</span> </span>
-<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(site <span class="sc">==</span> <span class="st">"uci"</span>)</span>
-<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>uci_d_lm <span class="ot">&lt;-</span> <span class="fu">lm</span>(demand <span class="sc">~</span> abatement, <span class="at">data =</span> uci_d_df)</span>
-<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>ucd_d_df <span class="ot">=</span> emissions_mod <span class="sc">%&gt;%</span> </span>
-<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(site <span class="sc">==</span> <span class="st">"ucd"</span>)</span>
-<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>ucd_d_lm <span class="ot">&lt;-</span> <span class="fu">lm</span>(demand <span class="sc">~</span> abatement, <span class="at">data =</span> ucd_d_df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">#define generic demand function</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>compute_demand_P <span class="ot">=</span> <span class="cf">function</span>(slope, baseline, emissions){</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  demand <span class="ot">=</span> slope<span class="sc">*</span>(baseline <span class="sc">-</span> emissions)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(demand)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co">#apply demand function and save results in main df</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>emissions_mod <span class="ot">=</span> emissions_mod <span class="sc">%&gt;%</span> </span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">demand =</span> <span class="fu">compute_demand_P</span>(slope, baseline, abatement))</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="co">#create linear models of demand (not necessary)</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>ucsb_d_df <span class="ot">=</span> emissions_mod <span class="sc">%&gt;%</span> </span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(site <span class="sc">==</span> <span class="st">"ucsb"</span>)</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>ucsb_d_lm <span class="ot">&lt;-</span> <span class="fu">lm</span>(demand <span class="sc">~</span> abatement, <span class="at">data =</span> ucsb_d_df)</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>ucla_d_df <span class="ot">=</span> emissions_mod <span class="sc">%&gt;%</span> </span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(site <span class="sc">==</span> <span class="st">"ucla"</span>)</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>ucla_d_lm <span class="ot">&lt;-</span> <span class="fu">lm</span>(demand <span class="sc">~</span> abatement, <span class="at">data =</span> ucla_d_df)</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>uci_d_df <span class="ot">=</span> emissions_mod <span class="sc">%&gt;%</span> </span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(site <span class="sc">==</span> <span class="st">"uci"</span>)</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>uci_d_lm <span class="ot">&lt;-</span> <span class="fu">lm</span>(demand <span class="sc">~</span> abatement, <span class="at">data =</span> uci_d_df)</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>ucd_d_df <span class="ot">=</span> emissions_mod <span class="sc">%&gt;%</span> </span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(site <span class="sc">==</span> <span class="st">"ucd"</span>)</span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>ucd_d_lm <span class="ot">&lt;-</span> <span class="fu">lm</span>(demand <span class="sc">~</span> abatement, <span class="at">data =</span> ucd_d_df)</span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a><span class="co">#write out the demand equations</span></span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>equatiomatic<span class="sc">::</span><span class="fu">extract_eq</span>(ucsb_d_lm, <span class="at">use_coefs =</span> <span class="cn">TRUE</span>, <span class="at">coef_digits =</span> <span class="dv">8</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in summary.lm(x): essentially perfect fit: summary may be unreliable</code></pre>
+</div>
+<div class="cell-output-display">
+<p><span class="math display">\[
+\operatorname{\widehat{demand}} = 90.37812564 - 0.0010042(\operatorname{abatement})
+\]</span></p>
+</div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>equatiomatic<span class="sc">::</span><span class="fu">extract_eq</span>(ucla_d_lm, <span class="at">use_coefs =</span> <span class="cn">TRUE</span>, <span class="at">coef_digits =</span> <span class="dv">8</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in summary.lm(x): essentially perfect fit: summary may be unreliable</code></pre>
+</div>
+<div class="cell-output-display">
+<p><span class="math display">\[
+\operatorname{\widehat{demand}} = 175.35868703 - 0.00070143(\operatorname{abatement})
+\]</span></p>
+</div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>equatiomatic<span class="sc">::</span><span class="fu">extract_eq</span>(ucd_d_lm, <span class="at">use_coefs =</span> <span class="cn">TRUE</span>, <span class="at">coef_digits =</span> <span class="dv">8</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in summary.lm(x): essentially perfect fit: summary may be unreliable</code></pre>
+</div>
+<div class="cell-output-display">
+<p><span class="math display">\[
+\operatorname{\widehat{demand}} = 483.86272388 - 0.00302414(\operatorname{abatement})
+\]</span></p>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>equatiomatic<span class="sc">::</span><span class="fu">extract_eq</span>(uci_d_lm, <span class="at">use_coefs =</span> <span class="cn">TRUE</span>, <span class="at">coef_digits =</span> <span class="dv">8</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in summary.lm(x): essentially perfect fit: summary may be unreliable</code></pre>
+</div>
+<div class="cell-output-display">
+<p><span class="math display">\[
+\operatorname{\widehat{demand}} = 200.77288765 - 0.00200773(\operatorname{abatement})
+\]</span></p>
+</div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">#plot demand curve for all sites</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>plot_2 <span class="ot">=</span> </span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(emissions_mod, <span class="fu">aes</span>(<span class="at">x =</span> abatement, <span class="at">y =</span> demand, <span class="at">color =</span> site)) <span class="sc">+</span></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">size =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#679289"</span>,<span class="st">"#9C964A"</span>,<span class="st">"#FDD262"</span>,<span class="st">"#D6604D"</span>))<span class="sc">+</span></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Pollution (tons of CO2)"</span>, <span class="at">y =</span>  <span class="st">"Demand"</span>, <span class="at">color =</span> <span class="st">"Site"</span>) <span class="sc">+</span></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">#plot demand curve for all sites</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>plot_2 <span class="ot">=</span> </span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(emissions_mod, <span class="fu">aes</span>(<span class="at">x =</span> abatement, <span class="at">y =</span> demand, <span class="at">color =</span> site)) <span class="sc">+</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">size =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#679289"</span>,<span class="st">"#9C964A"</span>,<span class="st">"#FDD262"</span>,<span class="st">"#D6604D"</span>))<span class="sc">+</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Pollution (tons of CO2)"</span>, <span class="at">y =</span>  <span class="st">"Demand"</span>, <span class="at">color =</span> <span class="st">"Site"</span>) <span class="sc">+</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>()<span class="sc">+</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylim</span>(<span class="dv">0</span>,<span class="dv">500</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
 ℹ Please use `linewidth` instead.</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>plot_2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>plot_2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 250 rows containing missing values (`geom_line()`).</code></pre>
+</div>
 <div class="cell-output-display">
-<p><img src="ESM204_a2_Art_Kristin_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
+<p><img src="ESM204_a2_Art_Kristin_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <ol start="3" type="1">
@@ -269,241 +311,438 @@ dbl (5): Abatement, UCSB, UCLA, UCI, UCD
 <li>Intervention #1: Carbon Tax: Each campus must pay a tax of $50/ton for each ton of emissions. How much would each campus choose to emit? How much would each campus abate? What is the total amount of emissions across all four campuses? How much tax revenue is generated?</li>
 </ol>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">#define generic function to calculate demand Q</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>compute_demand_Q <span class="ot">=</span> <span class="cf">function</span>(slope, baseline, price){</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  Q <span class="ot">=</span> baseline <span class="sc">-</span> ((price)<span class="sc">/</span>(slope))</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(Q)</span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="co">#define generic function to calculate abatement Q</span></span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>compute_abatement_Q <span class="ot">=</span> <span class="cf">function</span>(baseline, emit_Q){</span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>  abatement_Q <span class="ot">=</span> baseline <span class="sc">-</span> emit_Q</span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(abatement_Q)</span>
-<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>ucsb_emit_Q <span class="ot">=</span> <span class="fu">compute_demand_Q</span>(ucsb_slope, ucsb_baseline, <span class="at">price =</span> <span class="dv">50</span>)</span>
-<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>ucsb_abate_Q <span class="ot">=</span> <span class="fu">compute_abatement_Q</span>(ucsb_baseline, ucsb_emit_Q)</span>
-<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>results <span class="ot">=</span> <span class="fu">paste0</span>(<span class="st">"Under intervention #1, UCSB will emit "</span> , ucsb_emit_Q, <span class="st">" tons of carbon and abate "</span>, ucsb_abate_Q, <span class="st">" tons of carbon."</span>)</span>
-<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(results)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co">#define generic function to calculate demand Q</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>compute_demand_Q <span class="ot">=</span> <span class="cf">function</span>(slope, baseline, price){</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  Q <span class="ot">=</span> baseline <span class="sc">-</span> ((price)<span class="sc">/</span>(slope))</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(Q)</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="co">#define generic function to calculate abatement Q</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>compute_abatement_Q <span class="ot">=</span> <span class="cf">function</span>(baseline, emit_Q){</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>  abatement_Q <span class="ot">=</span> baseline <span class="sc">-</span> emit_Q</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(abatement_Q)</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>ucsb_emit_Q <span class="ot">=</span> <span class="fu">compute_demand_Q</span>(ucsb_slope, ucsb_baseline, <span class="at">price =</span> <span class="dv">50</span>)</span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>ucsb_abate_Q <span class="ot">=</span> <span class="fu">compute_abatement_Q</span>(ucsb_baseline, ucsb_emit_Q)</span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>results <span class="ot">=</span> <span class="fu">paste0</span>(<span class="st">"Under intervention #1 (carbon tax), UCSB will emit "</span> , ucsb_emit_Q, <span class="st">" tons of carbon and abate "</span>, ucsb_abate_Q, <span class="st">" tons of carbon."</span>)</span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(results)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "Under intervention #1, UCSB will emit 40209.1909084787 tons of carbon and abate 49790.8090915213 tons of carbon."</code></pre>
+<pre><code>[1] "Under intervention #1 (carbon tax), UCSB will emit 40209.1909084787 tons of carbon and abate 49790.8090915213 tons of carbon."</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>ucla_emit_Q <span class="ot">=</span> <span class="fu">compute_demand_Q</span>(ucla_slope, ucla_baseline, <span class="at">price =</span> <span class="dv">50</span>)</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>ucla_abate_Q <span class="ot">=</span> <span class="fu">compute_abatement_Q</span>(ucla_baseline, ucla_emit_Q)</span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>results <span class="ot">=</span> <span class="fu">paste0</span>(<span class="st">"Under intervention #1, UCLA will emit "</span> , ucla_emit_Q, <span class="st">" tons of carbon and abate "</span>, ucla_abate_Q, <span class="st">" tons of carbon."</span>)</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(results)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>ucla_emit_Q <span class="ot">=</span> <span class="fu">compute_demand_Q</span>(ucla_slope, ucla_baseline, <span class="at">price =</span> <span class="dv">50</span>)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>ucla_abate_Q <span class="ot">=</span> <span class="fu">compute_abatement_Q</span>(ucla_baseline, ucla_emit_Q)</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>results <span class="ot">=</span> <span class="fu">paste0</span>(<span class="st">"Under intervention #1 (carbon tax), UCLA will emit "</span> , ucla_emit_Q, <span class="st">" tons of carbon and abate "</span>, ucla_abate_Q, <span class="st">" tons of carbon."</span>)</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(results)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "Under intervention #1, UCLA will emit 178717.531983001 tons of carbon and abate 71282.4680169989 tons of carbon."</code></pre>
+<pre><code>[1] "Under intervention #1 (carbon tax), UCLA will emit 178717.531983001 tons of carbon and abate 71282.4680169989 tons of carbon."</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>ucd_emit_Q <span class="ot">=</span> <span class="fu">compute_demand_Q</span>(ucd_slope, ucd_baseline, <span class="at">price =</span> <span class="dv">50</span>)</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>ucd_abate_Q <span class="ot">=</span> <span class="fu">compute_abatement_Q</span>(ucd_baseline, ucd_emit_Q)</span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>results <span class="ot">=</span> <span class="fu">paste0</span>(<span class="st">"Under intervention #1, UCD will emit "</span> , ucd_emit_Q, <span class="st">" tons of carbon and abate "</span>, ucd_abate_Q, <span class="st">" tons of carbon."</span>)</span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(results)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>ucd_emit_Q <span class="ot">=</span> <span class="fu">compute_demand_Q</span>(ucd_slope, ucd_baseline, <span class="at">price =</span> <span class="dv">50</span>)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>ucd_abate_Q <span class="ot">=</span> <span class="fu">compute_abatement_Q</span>(ucd_baseline, ucd_emit_Q)</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>results <span class="ot">=</span> <span class="fu">paste0</span>(<span class="st">"Under intervention #1 (carbon tax), UCD will emit "</span> , ucd_emit_Q, <span class="st">" tons of carbon and abate "</span>, ucd_abate_Q, <span class="st">" tons of carbon."</span>)</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(results)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "Under intervention #1, UCD will emit 143466.384978117 tons of carbon and abate 16533.6150218829 tons of carbon."</code></pre>
+<pre><code>[1] "Under intervention #1 (carbon tax), UCD will emit 143466.384978117 tons of carbon and abate 16533.6150218829 tons of carbon."</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>uci_emit_Q <span class="ot">=</span> <span class="fu">compute_demand_Q</span>(uci_slope, uci_baseline, <span class="at">price =</span> <span class="dv">50</span>)</span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>uci_abate_Q <span class="ot">=</span> <span class="fu">compute_abatement_Q</span>(uci_baseline, uci_emit_Q)</span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>results <span class="ot">=</span> <span class="fu">paste0</span>(<span class="st">"Under intervention #1, UCI will emit "</span> , uci_emit_Q, <span class="st">" tons of carbon and abate "</span>, uci_abate_Q, <span class="st">" tons of carbon."</span>)</span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(results)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>uci_emit_Q <span class="ot">=</span> <span class="fu">compute_demand_Q</span>(uci_slope, uci_baseline, <span class="at">price =</span> <span class="dv">50</span>)</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>uci_abate_Q <span class="ot">=</span> <span class="fu">compute_abatement_Q</span>(uci_baseline, uci_emit_Q)</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>results <span class="ot">=</span> <span class="fu">paste0</span>(<span class="st">"Under intervention #1 (carbon tax), UCI will emit "</span> , uci_emit_Q, <span class="st">" tons of carbon and abate "</span>, uci_abate_Q, <span class="st">" tons of carbon."</span>)</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(results)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "Under intervention #1, UCI will emit 75096.2390467848 tons of carbon and abate 24903.7609532152 tons of carbon."</code></pre>
+<pre><code>[1] "Under intervention #1 (carbon tax), UCI will emit 75096.2390467848 tons of carbon and abate 24903.7609532152 tons of carbon."</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>total_emitted <span class="ot">&lt;-</span> ucsb_emit_Q <span class="sc">+</span> ucla_emit_Q <span class="sc">+</span> uci_emit_Q <span class="sc">+</span> ucd_emit_Q</span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>total_revenue <span class="ot">&lt;-</span> total_emitted<span class="sc">*</span><span class="dv">50</span></span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>results <span class="ot">=</span> <span class="fu">paste0</span>(<span class="st">"Under intervention #1, the four campuses will emit a total of"</span> , total_emitted, <span class="st">" tons of carbon and generate $"</span>, total_revenue, <span class="st">" in tax revenue."</span>)</span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(results)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>total_emitted <span class="ot">=</span> ucsb_emit_Q <span class="sc">+</span> ucla_emit_Q <span class="sc">+</span> uci_emit_Q <span class="sc">+</span> ucd_emit_Q</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>total_revenue <span class="ot">=</span> total_emitted<span class="sc">*</span><span class="dv">50</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>results <span class="ot">=</span> <span class="fu">paste0</span>(<span class="st">"Under intervention #1 (carbon tax), the four campuses will emit a total of "</span> , total_emitted, <span class="st">" tons of carbon and generate $"</span>, total_revenue, <span class="st">" in tax revenue."</span>)</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(results)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "Under intervention #1, the four campuses will emit a total of437489.346916382 tons of carbon and generate $21874467.3458191 in tax revenue."</code></pre>
+<pre><code>[1] "Under intervention #1 (carbon tax), the four campuses will emit a total of 437489.346916382 tons of carbon and generate $21874467.3458191 in tax revenue."</code></pre>
 </div>
 </div>
 <ol start="2" type="a">
 <li>Intervention #2: Carbon Ban: Carbon emissions are banned at each campus. What is the total cost of this ban to each campus?</li>
 </ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co">#supply curves from the lm are now:</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>ucsb_mac <span class="ot">=</span> <span class="cf">function</span>(Q){</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  P <span class="ot">=</span> ucsb_slope<span class="sc">*</span>Q</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(P)}</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>ucla_mac <span class="ot">=</span> <span class="cf">function</span>(Q){</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>  P <span class="ot">=</span> ucla_slope<span class="sc">*</span>Q</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(P)}</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>ucd_mac <span class="ot">=</span> <span class="cf">function</span>(Q){</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>  P <span class="ot">=</span> ucd_slope<span class="sc">*</span>Q</span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(P)}</span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>uci_mac <span class="ot">=</span> <span class="cf">function</span>(Q){</span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>  P <span class="ot">=</span> uci_slope<span class="sc">*</span>Q</span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(P)}</span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a>ucsb_ban_P <span class="ot">=</span> <span class="fu">abs</span>(<span class="fu">integral</span>(<span class="at">f =</span> ucsb_mac, <span class="at">xmin =</span> ucsb_baseline, <span class="at">xmax =</span> <span class="dv">0</span>))</span>
+<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a>ucla_ban_P <span class="ot">=</span> <span class="fu">abs</span>(<span class="fu">integral</span>(<span class="at">f =</span> ucla_mac, <span class="at">xmin =</span> ucla_baseline, <span class="at">xmax =</span> <span class="dv">0</span>))</span>
+<span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a>ucd_ban_P <span class="ot">=</span> <span class="fu">abs</span>(<span class="fu">integral</span>(<span class="at">f =</span> ucd_mac, <span class="at">xmin =</span> ucd_baseline, <span class="at">xmax =</span> <span class="dv">0</span>))</span>
+<span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a>uci_ban_P <span class="ot">=</span> <span class="fu">abs</span>(<span class="fu">integral</span>(<span class="at">f =</span> uci_mac, <span class="at">xmin =</span> uci_baseline, <span class="at">xmax =</span> <span class="dv">0</span>))</span>
+<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a>total_ban_P <span class="ot">=</span> <span class="fu">sum</span>(ucsb_ban_P, ucla_ban_P, ucd_ban_P, uci_ban_P)</span>
+<span id="cb32-21"><a href="#cb32-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-22"><a href="#cb32-22" aria-hidden="true" tabindex="-1"></a>results <span class="ot">=</span> <span class="fu">paste0</span>(<span class="st">"Intervention #2 (carbon ban) will cost $"</span>, ucsb_ban_P,<span class="st">" at UCSB, $"</span>, ucla_ban_P, <span class="st">" at UCLA, $"</span>, ucd_ban_P, <span class="st">" at UCD, and $"</span>, uci_ban_P, <span class="st">"at UCI. The total cost to all four campuses is $"</span>, total_ban_P, <span class="st">"."</span>)</span>
+<span id="cb32-23"><a href="#cb32-23" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(results)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Intervention #2 (carbon ban) will cost $4067015.6539891 at UCSB, $21919835.8792429 at UCLA, $38709017.9100539 at UCD, and $10038644.3826559at UCI. The total cost to all four campuses is $74734513.8259418."</code></pre>
+</div>
+</div>
 <ol start="3" type="a">
-<li><p>Intervention #3: Cap without Trade: Each campus is capped at 100,000 tons of carbon. How much abatement would be required by each campus to comply with this cap? What is the marginal cost of the last unit of abatement for each campus? What is the total cost of abatement for each campus to comply with this new cap?</p></li>
-<li><p>Intervention #4: Cap with Trade: Suppose each campus is capped at 100,000 tons of carbon, but trade is allowed. With trade, total emissions will be 400,000 but some campuses may emit more or less than 100,000. How much would each campus end up emitting after trade? What is the equilibrium trading price of carbon permits? For each campus, calculate whether they are a buyer or a seller of permits.</p></li>
+<li>Intervention #3: Cap without Trade: Each campus is capped at 100,000 tons of carbon. How much abatement would be required by each campus to comply with this cap? What is the marginal cost of the last unit of abatement for each campus? What is the total cost of abatement for each campus to comply with this new cap?</li>
 </ol>
-<!-- -->
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co">#How much abatement would be required by each campus to comply with this cap?</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="co">#apply generic function from above to calculate abatement Q </span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>cap_Q <span class="ot">=</span> <span class="dv">100000</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>ucsb_abate_Q2 <span class="ot">=</span> <span class="fu">max</span>(<span class="dv">0</span>,<span class="fu">compute_abatement_Q</span>(ucsb_baseline, cap_Q))</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>ucla_abate_Q2 <span class="ot">=</span> <span class="fu">max</span>(<span class="dv">0</span>,<span class="fu">compute_abatement_Q</span>(ucla_baseline, cap_Q))</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>ucd_abate_Q2 <span class="ot">=</span> <span class="fu">max</span>(<span class="dv">0</span>,<span class="fu">compute_abatement_Q</span>(ucd_baseline, cap_Q))</span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>uci_abate_Q2 <span class="ot">=</span> <span class="fu">max</span>(<span class="dv">0</span>,<span class="fu">compute_abatement_Q</span>(uci_baseline, cap_Q))</span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>results <span class="ot">=</span> <span class="fu">paste0</span>(<span class="st">"Under intervention #3 (cap without trade), UCSB will abate "</span>, ucsb_abate_Q2, <span class="st">", UCLA will abate "</span>, ucla_abate_Q2, <span class="st">", UCD will abate "</span>, ucd_abate_Q2, <span class="st">", and UCI will abate "</span>, uci_abate_Q2,<span class="st">"."</span>)</span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(results)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Under intervention #3 (cap without trade), UCSB will abate 0, UCLA will abate 150000, UCD will abate 60000, and UCI will abate 0."</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co">#What is the marginal cost of the last unit of abatement for each campus?</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>ucsb_cap_P <span class="ot">=</span> <span class="fu">ucsb_mac</span>(ucsb_abate_Q2)</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>ucla_cap_P <span class="ot">=</span> <span class="fu">ucla_mac</span>(ucla_abate_Q2)</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>ucd_cap_P <span class="ot">=</span> <span class="fu">ucd_mac</span>(ucd_abate_Q2)</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>uci_cap_P <span class="ot">=</span> <span class="fu">uci_mac</span>(uci_abate_Q2 )</span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>results <span class="ot">=</span> <span class="fu">paste0</span>(<span class="st">"Under intervention #3 (cap without trade), the cost of the last unit of abatement for each campus will be $"</span>, ucsb_cap_P, <span class="st">" for UCSB, $"</span>, ucla_cap_P, <span class="st">" for UCLA, $"</span>, ucd_cap_P, <span class="st">" for UCD, and $"</span>, uci_cap_P,<span class="st">" for UCD."</span>)</span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(results)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Under intervention #3 (cap without trade), the cost of the last unit of abatement for each campus will be $0 for UCSB, $105.215212220366 for UCLA, $181.448521453377 for UCD, and $0 for UCD."</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co">#What is the total cost of abatement for each campus to comply with this new cap?</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>ucsb_cap_P2 <span class="ot">=</span> <span class="fu">abs</span>(<span class="fu">integral</span>(<span class="at">f =</span> ucsb_mac, <span class="at">xmin =</span> ucsb_baseline, <span class="at">xmax =</span> ucsb_abate_Q2))</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>ucla_cap_P2 <span class="ot">=</span> <span class="fu">abs</span>(<span class="fu">integral</span>(<span class="at">f =</span> ucla_mac, <span class="at">xmin =</span> ucla_baseline, <span class="at">xmax =</span> ucla_abate_Q2))</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>ucd_cap_P2 <span class="ot">=</span> <span class="fu">abs</span>(<span class="fu">integral</span>(<span class="at">f =</span> ucd_mac, <span class="at">xmin =</span> ucd_baseline, <span class="at">xmax =</span> ucd_abate_Q2))</span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>uci_cap_P2 <span class="ot">=</span> <span class="fu">abs</span>(<span class="fu">integral</span>(<span class="at">f =</span> uci_mac, <span class="at">xmin =</span> uci_baseline, <span class="at">xmax =</span> uci_abate_Q2))</span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>results <span class="ot">=</span> <span class="fu">paste0</span>(<span class="st">"Under intervention #3 (cap without trade), the total cost for each campus to comply with the cap is $"</span>, ucsb_cap_P2, <span class="st">" for UCSB, $"</span>, ucla_cap_P2, <span class="st">" for UCLA, $"</span>, ucd_cap_P2, <span class="st">" for UCD, and $"</span>, uci_cap_P2,<span class="st">" for UCD."</span>)</span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(results)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Under intervention #3 (cap without trade), the total cost for each campus to comply with the cap is $4067015.6539891 for UCSB, $14028694.9627155 for UCLA, $33265562.2664525 for UCD, and $10038644.3826559 for UCD."</code></pre>
+</div>
+</div>
+<ol start="4" type="a">
+<li>Intervention #4: Cap with Trade: Suppose each campus is capped at 100,000 tons of carbon, but trade is allowed. With trade, total emissions will be 400,000 but some campuses may emit more or less than 100,000. How much would each campus end up emitting after trade? What is the equilibrium trading price of carbon permits? For each campus, calculate whether they are a buyer or a seller of permits.</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co">#demand curves are given by:</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>ucsb_d_P <span class="ot">=</span> <span class="cf">function</span>(Q){</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  <span class="co">#P = ucsb_slope*(ucsb_baseline - Q)</span></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>  P <span class="ot">=</span> <span class="fu">compute_demand_P</span>(<span class="at">slope =</span> ucsb_slope, <span class="at">baseline =</span> ucsb_baseline, <span class="at">emissions =</span> Q)</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(P)</span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>ucla_d_P <span class="ot">=</span> <span class="cf">function</span>(Q){</span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>  <span class="co">#P = ucla_slope*(ucla_baseline - Q)</span></span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>  P <span class="ot">=</span> <span class="fu">compute_demand_P</span>(<span class="at">slope =</span> ucla_slope, <span class="at">baseline =</span> ucla_baseline, <span class="at">emissions =</span> Q)</span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(P)</span>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a>ucd_d_P <span class="ot">=</span> <span class="cf">function</span>(Q){</span>
+<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a>  P <span class="ot">=</span> <span class="fu">compute_demand_P</span>(<span class="at">slope =</span> ucd_slope, <span class="at">baseline =</span> ucd_baseline, <span class="at">emissions =</span> Q)</span>
+<span id="cb40-14"><a href="#cb40-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(P)</span>
+<span id="cb40-15"><a href="#cb40-15" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb40-16"><a href="#cb40-16" aria-hidden="true" tabindex="-1"></a>uci_d_P <span class="ot">=</span> <span class="cf">function</span>(Q){</span>
+<span id="cb40-17"><a href="#cb40-17" aria-hidden="true" tabindex="-1"></a>  P <span class="ot">=</span> <span class="fu">compute_demand_P</span>(<span class="at">slope =</span> uci_slope, <span class="at">baseline =</span> uci_baseline, <span class="at">emissions =</span> Q)</span>
+<span id="cb40-18"><a href="#cb40-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(P)</span>
+<span id="cb40-19"><a href="#cb40-19" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb40-20"><a href="#cb40-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-21"><a href="#cb40-21" aria-hidden="true" tabindex="-1"></a><span class="co">#demand curve Qs are given by:</span></span>
+<span id="cb40-22"><a href="#cb40-22" aria-hidden="true" tabindex="-1"></a>ucsb_d_Q <span class="ot">=</span> <span class="cf">function</span>(P){</span>
+<span id="cb40-23"><a href="#cb40-23" aria-hidden="true" tabindex="-1"></a>  Q <span class="ot">=</span> (((ucsb_slope<span class="sc">*</span>ucsb_baseline) <span class="sc">-</span> P)<span class="sc">/</span> ucsb_slope)</span>
+<span id="cb40-24"><a href="#cb40-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(Q)</span>
+<span id="cb40-25"><a href="#cb40-25" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb40-26"><a href="#cb40-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-27"><a href="#cb40-27" aria-hidden="true" tabindex="-1"></a>ucla_d_Q <span class="ot">=</span> <span class="cf">function</span>(P){</span>
+<span id="cb40-28"><a href="#cb40-28" aria-hidden="true" tabindex="-1"></a>  Q <span class="ot">=</span> (((ucla_slope<span class="sc">*</span>ucla_baseline) <span class="sc">-</span> P)<span class="sc">/</span> ucla_slope)</span>
+<span id="cb40-29"><a href="#cb40-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(Q)</span>
+<span id="cb40-30"><a href="#cb40-30" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb40-31"><a href="#cb40-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-32"><a href="#cb40-32" aria-hidden="true" tabindex="-1"></a>ucd_d_Q <span class="ot">=</span> <span class="cf">function</span>(P){</span>
+<span id="cb40-33"><a href="#cb40-33" aria-hidden="true" tabindex="-1"></a>  Q <span class="ot">=</span> (((ucd_slope<span class="sc">*</span>ucd_baseline) <span class="sc">-</span> P)<span class="sc">/</span> ucd_slope)</span>
+<span id="cb40-34"><a href="#cb40-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(Q)</span>
+<span id="cb40-35"><a href="#cb40-35" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb40-36"><a href="#cb40-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-37"><a href="#cb40-37" aria-hidden="true" tabindex="-1"></a>uci_d_Q <span class="ot">=</span> <span class="cf">function</span>(P){</span>
+<span id="cb40-38"><a href="#cb40-38" aria-hidden="true" tabindex="-1"></a>  Q <span class="ot">=</span> (((uci_slope<span class="sc">*</span>uci_baseline) <span class="sc">-</span> P)<span class="sc">/</span> uci_slope)</span>
+<span id="cb40-39"><a href="#cb40-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(Q)</span>
+<span id="cb40-40"><a href="#cb40-40" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb40-41"><a href="#cb40-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-42"><a href="#cb40-42" aria-hidden="true" tabindex="-1"></a><span class="co">#aggregate demand curve is given by:</span></span>
+<span id="cb40-43"><a href="#cb40-43" aria-hidden="true" tabindex="-1"></a>agg_d_Q <span class="ot">=</span> <span class="cf">function</span>(P){</span>
+<span id="cb40-44"><a href="#cb40-44" aria-hidden="true" tabindex="-1"></a>  Q <span class="ot">=</span> (((ucsb_slope<span class="sc">*</span>ucsb_baseline) <span class="sc">-</span> P)<span class="sc">/</span> ucsb_slope) <span class="sc">+</span> (((ucla_slope<span class="sc">*</span>ucla_baseline) <span class="sc">-</span> P)<span class="sc">/</span> ucla_slope) <span class="sc">+</span> (((ucd_slope<span class="sc">*</span>ucd_baseline) <span class="sc">-</span> P)<span class="sc">/</span> ucd_slope) <span class="sc">+</span> (((uci_slope<span class="sc">*</span>uci_baseline) <span class="sc">-</span> P)<span class="sc">/</span> uci_slope)</span>
+<span id="cb40-45"><a href="#cb40-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(Q)</span>
+<span id="cb40-46"><a href="#cb40-46" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb40-47"><a href="#cb40-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-48"><a href="#cb40-48" aria-hidden="true" tabindex="-1"></a>total_baseline <span class="ot">=</span> <span class="fu">sum</span>(ucsb_baseline, ucla_baseline, ucd_baseline, uci_baseline)</span>
+<span id="cb40-49"><a href="#cb40-49" aria-hidden="true" tabindex="-1"></a>total_baseline <span class="ot">=</span> ucsb_baseline<span class="sc">+</span>ucla_baseline<span class="sc">+</span>ucd_baseline<span class="sc">+</span>uci_baseline</span>
+<span id="cb40-50"><a href="#cb40-50" aria-hidden="true" tabindex="-1"></a>total_slope <span class="ot">=</span> ((<span class="dv">1</span><span class="sc">/</span>ucsb_slope) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">/</span>ucla_slope) <span class="sc">+</span>(<span class="dv">1</span><span class="sc">/</span>uci_slope)<span class="sc">+</span>(<span class="dv">1</span><span class="sc">/</span>ucd_slope))</span>
+<span id="cb40-51"><a href="#cb40-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-52"><a href="#cb40-52" aria-hidden="true" tabindex="-1"></a>agg_d_P <span class="ot">=</span> <span class="cf">function</span>(Q){</span>
+<span id="cb40-53"><a href="#cb40-53" aria-hidden="true" tabindex="-1"></a>  P <span class="ot">=</span> ((total_baseline <span class="sc">-</span> Q)<span class="sc">/</span>total_slope)</span>
+<span id="cb40-54"><a href="#cb40-54" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(P)</span>
+<span id="cb40-55"><a href="#cb40-55" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb40-56"><a href="#cb40-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-57"><a href="#cb40-57" aria-hidden="true" tabindex="-1"></a><span class="co">#What is the equilibrium trading price of carbon permits? </span></span>
+<span id="cb40-58"><a href="#cb40-58" aria-hidden="true" tabindex="-1"></a><span class="co">#calculate the equilibrium trading price</span></span>
+<span id="cb40-59"><a href="#cb40-59" aria-hidden="true" tabindex="-1"></a>cap_Q2 <span class="ot">=</span> <span class="dv">400000</span></span>
+<span id="cb40-60"><a href="#cb40-60" aria-hidden="true" tabindex="-1"></a>cap_P <span class="ot">=</span> <span class="fu">agg_d_P</span>(cap_Q2)</span>
+<span id="cb40-61"><a href="#cb40-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-62"><a href="#cb40-62" aria-hidden="true" tabindex="-1"></a><span class="co">#How much would each campus end up emitting after trade? What is the equilibrium trading price of carbon permits? For each campus, calculate whether they are a buyer or a seller of permits.</span></span>
+<span id="cb40-63"><a href="#cb40-63" aria-hidden="true" tabindex="-1"></a>ucsb_cap_Q <span class="ot">=</span> <span class="fu">ucsb_d_Q</span>(cap_P)</span>
+<span id="cb40-64"><a href="#cb40-64" aria-hidden="true" tabindex="-1"></a>ucla_cap_Q <span class="ot">=</span> <span class="fu">ucla_d_Q</span>(cap_P)</span>
+<span id="cb40-65"><a href="#cb40-65" aria-hidden="true" tabindex="-1"></a>ucd_cap_Q <span class="ot">=</span> <span class="fu">ucd_d_Q</span>(cap_P)</span>
+<span id="cb40-66"><a href="#cb40-66" aria-hidden="true" tabindex="-1"></a>uci_cap_Q <span class="ot">=</span> <span class="fu">uci_d_Q</span>(cap_P)</span>
+<span id="cb40-67"><a href="#cb40-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-68"><a href="#cb40-68" aria-hidden="true" tabindex="-1"></a><span class="co">#check that this is equal to the total cap, 400,000</span></span>
+<span id="cb40-69"><a href="#cb40-69" aria-hidden="true" tabindex="-1"></a>total <span class="ot">=</span> <span class="fu">sum</span>(ucsb_cap_Q, ucla_cap_Q, ucd_cap_Q, uci_cap_Q)</span>
+<span id="cb40-70"><a href="#cb40-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-71"><a href="#cb40-71" aria-hidden="true" tabindex="-1"></a>results <span class="ot">=</span> <span class="fu">paste0</span>(<span class="st">"Under intervention #4 (cap with trade), UCSB will emit "</span>, ucsb_cap_Q, <span class="st">" tons of carbon, UCLA will emit "</span>, ucla_cap_Q, <span class="st">" tons of carbon, UCD will emit "</span>, ucd_cap_Q, <span class="st">" tons of carbon, and UCI will emit "</span>, uci_cap_Q,<span class="st">" tons of carbon. UCSB and UCI are sellers of carbon emission permits while UCLA and UCD are buyers of carbon emissions permits in this market."</span>)</span>
+<span id="cb40-72"><a href="#cb40-72" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(results)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Under intervention #4 (cap with trade), UCSB will emit 28723.0213567576 tons of carbon, UCLA will emit 162273.482797068 tons of carbon, UCD will emit 139652.269302769 tons of carbon, and UCI will emit 69351.2265434054 tons of carbon. UCSB and UCI are sellers of carbon emission permits while UCLA and UCD are buyers of carbon emissions permits in this market."</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="do">##compare to CAP!! 100,000 if you emit more than the cap, you're a buyer</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <ol start="4" type="1">
 <li>The central campus decides to go with the “Cap with Trade” approach (Scenario 3d above). An altruistic philanthropist buys 50,000 of the permits from the cap and trade market and retires them (i.e.&nbsp;not emit the carbon), so only 350,000 tons will be emitted. What is the new trading price among the four campuses? How much will it cost the philanthropist to buy and retire these permits?</li>
 </ol>
-<p>1 I recommend using the function “lm” (as in “linear model”) in R. 2 Hint: You can use this equation for the demand for emissions: P(Emissions) = a<em>Baseline – a</em>Emissions, where a is your estimated slope of the marginal cost curve.</p>
+<p>hint: price from question 3d is what the philanthropist will buy them at. then new total emissions is 350000 so redo question 3D</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="co">#What is the new trading price among the four campuses?</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>cap_Q3 <span class="ot">=</span> <span class="dv">350000</span></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>cap_P2 <span class="ot">=</span> <span class="fu">agg_d_P</span>(cap_Q3)</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>cap_P2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 76.91803</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="co">#How much will it cost the philanthropist to buy and retire these permits?</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>phil_cost <span class="ot">=</span> <span class="dv">50000</span><span class="sc">*</span>cap_P</span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>phil_cost</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 3076721</code></pre>
+</div>
+</div>
 <p>Kristin’s notes (lots of incorrect things in chunks below here)</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># #plot marginal abatement cost curves</span></span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="co"># plot_0 = emissions %&gt;%</span></span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="co">#   filter(site == "ucsb") %&gt;%</span></span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="co">#   ggplot(aes(x = reduction, y = abatement)) +</span></span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="co">#   geom_point() +</span></span>
-<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="co">#   geom_smooth(method = 'lm', se = FALSE, color = "coral") +</span></span>
-<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="co">#   stat_regline_equation(label.y = 185000, aes(label = ..eq.label.., color = 'coral'))+</span></span>
-<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a><span class="co">#   labs(x = "Abatement (tons of CO2)", y =  "Marginal Cost ($ per ton of CO2)") +</span></span>
-<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a><span class="co">#   theme_minimal() +</span></span>
-<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a><span class="co">#   theme(legend.position = 'none')</span></span>
-<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a><span class="co"># plot_0</span></span>
-<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a><span class="co"># plot_1 = emissions %&gt;%</span></span>
-<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a><span class="co">#   filter(site == "ucla") %&gt;%</span></span>
-<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a><span class="co">#   ggplot(aes(x = reduction, y = abatement)) +</span></span>
-<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a><span class="co">#   geom_point() +</span></span>
-<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a><span class="co">#   geom_smooth(method = 'lm', se = FALSE, color = "goldenrod") +</span></span>
-<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a><span class="co">#   stat_regline_equation(label.y = 185000, aes(label = ..eq.label.., color = 'goldenrod'))+</span></span>
-<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a><span class="co">#   labs(x = "Abatement (tons of CO2)", y =  "Marginal Cost ($ per ton of CO2)") +</span></span>
-<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a><span class="co">#   theme_minimal() +</span></span>
-<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a><span class="co">#   theme(legend.position = 'none')</span></span>
-<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a><span class="co"># plot_1</span></span>
-<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb25-26"><a href="#cb25-26" aria-hidden="true" tabindex="-1"></a><span class="co"># plot_2 = emissions %&gt;%</span></span>
-<span id="cb25-27"><a href="#cb25-27" aria-hidden="true" tabindex="-1"></a><span class="co">#   filter(site == "uci") %&gt;%</span></span>
-<span id="cb25-28"><a href="#cb25-28" aria-hidden="true" tabindex="-1"></a><span class="co">#   ggplot(aes(x = reduction, y = abatement)) +</span></span>
-<span id="cb25-29"><a href="#cb25-29" aria-hidden="true" tabindex="-1"></a><span class="co">#   geom_point() +</span></span>
-<span id="cb25-30"><a href="#cb25-30" aria-hidden="true" tabindex="-1"></a><span class="co">#   geom_smooth(method = 'lm', se = FALSE, color = "goldenrod") +</span></span>
-<span id="cb25-31"><a href="#cb25-31" aria-hidden="true" tabindex="-1"></a><span class="co">#   stat_regline_equation(label.y = 185000, aes(label = ..eq.label.., color = 'goldenrod'))+</span></span>
-<span id="cb25-32"><a href="#cb25-32" aria-hidden="true" tabindex="-1"></a><span class="co">#   labs(x = "Abatement (tons of CO2)", y =  "Marginal Cost ($ per ton of CO2)") +</span></span>
-<span id="cb25-33"><a href="#cb25-33" aria-hidden="true" tabindex="-1"></a><span class="co">#   theme_minimal() +</span></span>
-<span id="cb25-34"><a href="#cb25-34" aria-hidden="true" tabindex="-1"></a><span class="co">#   theme(legend.position = 'none')</span></span>
-<span id="cb25-35"><a href="#cb25-35" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb25-36"><a href="#cb25-36" aria-hidden="true" tabindex="-1"></a><span class="co"># plot_2</span></span>
-<span id="cb25-37"><a href="#cb25-37" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb25-38"><a href="#cb25-38" aria-hidden="true" tabindex="-1"></a><span class="co"># plot_3 = emissions %&gt;%</span></span>
-<span id="cb25-39"><a href="#cb25-39" aria-hidden="true" tabindex="-1"></a><span class="co">#   filter(site == "ucd") %&gt;%</span></span>
-<span id="cb25-40"><a href="#cb25-40" aria-hidden="true" tabindex="-1"></a><span class="co">#   ggplot(aes(x = reduction, y = abatement)) +</span></span>
-<span id="cb25-41"><a href="#cb25-41" aria-hidden="true" tabindex="-1"></a><span class="co">#   geom_point() +</span></span>
-<span id="cb25-42"><a href="#cb25-42" aria-hidden="true" tabindex="-1"></a><span class="co">#   geom_smooth(method = 'lm', se = FALSE, color = "goldenrod") +</span></span>
-<span id="cb25-43"><a href="#cb25-43" aria-hidden="true" tabindex="-1"></a><span class="co">#   stat_regline_equation(label.y = 185000, aes(label = ..eq.label.., color = 'goldenrod'))+</span></span>
-<span id="cb25-44"><a href="#cb25-44" aria-hidden="true" tabindex="-1"></a><span class="co">#   labs(x = "Abatement (tons of CO2)", y =  "Marginal Cost ($ per ton of CO2)") +</span></span>
-<span id="cb25-45"><a href="#cb25-45" aria-hidden="true" tabindex="-1"></a><span class="co">#   theme_minimal() +</span></span>
-<span id="cb25-46"><a href="#cb25-46" aria-hidden="true" tabindex="-1"></a><span class="co">#   theme(legend.position = 'none')</span></span>
-<span id="cb25-47"><a href="#cb25-47" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb25-48"><a href="#cb25-48" aria-hidden="true" tabindex="-1"></a><span class="co"># plot_3</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Sandy's discussion notes</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="co"># seq(0, 250000, length.out = 100)</span></span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a><span class="co"># df = data.frame(E = seq(0, 250000, length.out = 100)) %&gt;% </span></span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a><span class="co">#   mutate(price_ucsb = pmax(0, P_UCSB(E)))</span></span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a><span class="co"># geom_vline()</span></span>
+<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb47-9"><a href="#cb47-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Pstar = spline(x = DF2)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># #combine plots</span></span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="co"># plot = plot_grid(plot_0, plot_1, plot_2, plot_3)</span></span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="co"># plot</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="co">#What is the marginal cost of the last unit of abatement for each campus?</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="co">#is this right??? </span></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a><span class="co"># ucsb_cap_P = (integral(f = ucsb_mac, xmin = (ucsb_abate_Q2-1), xmax = ucsb_abate_Q2))</span></span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a><span class="co"># ucla_cap_P = (integral(f = ucla_mac, xmin = (ucla_abate_Q2-1), xmax = ucla_abate_Q2))</span></span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a><span class="co"># ucd_cap_P = (integral(f = ucd_mac, xmin = (ucd_abate_Q2-1), xmax = ucd_abate_Q2))</span></span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a><span class="co"># uci_cap_P = (integral(f = uci_mac, xmin = (uci_abate_Q2-1), xmax = uci_abate_Q2))</span></span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a><span class="co"># results = paste0("Under intervention #3 (cap without trade), the cost of the last unit of abatement for each campus will be $", ucsb_cap_P, " for UCSB, $", ucla_cap_P, " for UCLA, $", ucd_cap_P, " for UCD, and $", uci_cap_P," for UCD.")</span></span>
+<span id="cb48-9"><a href="#cb48-9" aria-hidden="true" tabindex="-1"></a><span class="co"># print(results)</span></span>
+<span id="cb48-10"><a href="#cb48-10" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb48-11"><a href="#cb48-11" aria-hidden="true" tabindex="-1"></a><span class="co"># #or would it be this? since some campuses would need to reduce </span></span>
+<span id="cb48-12"><a href="#cb48-12" aria-hidden="true" tabindex="-1"></a><span class="co"># ucsb_cap_P = (integral(f = ucsb_mac, xmin = (emit_Q2-1), xmax = emit_Q2))</span></span>
+<span id="cb48-13"><a href="#cb48-13" aria-hidden="true" tabindex="-1"></a><span class="co"># ucla_cap_P = (integral(f = ucla_mac, xmin = (emit_Q2-1), xmax = emit_Q2))</span></span>
+<span id="cb48-14"><a href="#cb48-14" aria-hidden="true" tabindex="-1"></a><span class="co"># ucd_cap_P = (integral(f = ucd_mac, xmin = (emit_Q2-1), xmax = emit_Q2))</span></span>
+<span id="cb48-15"><a href="#cb48-15" aria-hidden="true" tabindex="-1"></a><span class="co"># uci_cap_P = (integral(f = uci_mac, xmin = (emit_Q2-1), xmax = emit_Q2))</span></span>
+<span id="cb48-16"><a href="#cb48-16" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb48-17"><a href="#cb48-17" aria-hidden="true" tabindex="-1"></a><span class="co"># results = paste0("Under intervention #3 (cap without trade), the marginal cost of the last unit of abatement for each campus will be $", ucsb_cap_P, " for UCSB, $", ucla_cap_P, " for UCLA, $", ucd_cap_P, " for UCD, and $", uci_cap_P," for UCD.")</span></span>
+<span id="cb48-18"><a href="#cb48-18" aria-hidden="true" tabindex="-1"></a><span class="co"># print(results)</span></span>
+<span id="cb48-19"><a href="#cb48-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-20"><a href="#cb48-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-21"><a href="#cb48-21" aria-hidden="true" tabindex="-1"></a><span class="co">#cap_P = abs(integral(fun = agg_d_Q, xmin = total_baseline, xmax = cap_Q2))</span></span>
+<span id="cb48-22"><a href="#cb48-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-23"><a href="#cb48-23" aria-hidden="true" tabindex="-1"></a><span class="co">#cap_P</span></span>
+<span id="cb48-24"><a href="#cb48-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-25"><a href="#cb48-25" aria-hidden="true" tabindex="-1"></a><span class="co"># #create df with demand values</span></span>
+<span id="cb48-26"><a href="#cb48-26" aria-hidden="true" tabindex="-1"></a><span class="co"># demand = seq(from = 0, to = 500, 1) %&gt;% </span></span>
+<span id="cb48-27"><a href="#cb48-27" aria-hidden="true" tabindex="-1"></a><span class="co">#   as.data.frame() %&gt;% </span></span>
+<span id="cb48-28"><a href="#cb48-28" aria-hidden="true" tabindex="-1"></a><span class="co">#   rename(price = 1) %&gt;% </span></span>
+<span id="cb48-29"><a href="#cb48-29" aria-hidden="true" tabindex="-1"></a><span class="co">#   mutate(ucsb_q = (purrr::map(.x = price, .f = ucsb_d_Q)),</span></span>
+<span id="cb48-30"><a href="#cb48-30" aria-hidden="true" tabindex="-1"></a><span class="co">#          ucla_q = (purrr::map(.x = price, .f = ucla_d_Q)),</span></span>
+<span id="cb48-31"><a href="#cb48-31" aria-hidden="true" tabindex="-1"></a><span class="co">#          ucd_q = (purrr::map(.x = price, .f = ucd_d_Q)),</span></span>
+<span id="cb48-32"><a href="#cb48-32" aria-hidden="true" tabindex="-1"></a><span class="co">#          uci_q = (purrr::map(.x = price, .f = uci_d_Q)),</span></span>
+<span id="cb48-33"><a href="#cb48-33" aria-hidden="true" tabindex="-1"></a><span class="co">#          agg_q = (purrr::map(.x = price, .f = agg_d_Q)))</span></span>
+<span id="cb48-34"><a href="#cb48-34" aria-hidden="true" tabindex="-1"></a><span class="co">#   </span></span>
+<span id="cb48-35"><a href="#cb48-35" aria-hidden="true" tabindex="-1"></a><span class="co"># ggplot(demand)+</span></span>
+<span id="cb48-36"><a href="#cb48-36" aria-hidden="true" tabindex="-1"></a><span class="co">#   geom_line(aes(x = agg_q, y = price))</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co">#supply curves from the lm are now:</span></span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>ucsb_mac <span class="ot">=</span> <span class="cf">function</span>(Q){</span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  P <span class="ot">=</span> ucsb_slope<span class="sc">*</span>Q</span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(P)}</span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>ucla_mac <span class="ot">=</span> <span class="cf">function</span>(Q){</span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>  P <span class="ot">=</span> ucla_slope<span class="sc">*</span>Q</span>
-<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(P)}</span>
-<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>ucd_mac <span class="ot">=</span> <span class="cf">function</span>(Q){</span>
-<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>  P <span class="ot">=</span> ucd_slope<span class="sc">*</span>Q</span>
-<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(P)}</span>
-<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>uci_mac <span class="ot">=</span> <span class="cf">function</span>(Q){</span>
-<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>  P <span class="ot">=</span> uci_slope<span class="sc">*</span>Q</span>
-<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(P)}</span>
-<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a><span class="co"># #aggregate supply curve is given by:</span></span>
-<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a><span class="co"># agg_mac = function(P){</span></span>
-<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a><span class="co">#   Q = (1/(ucsb_slope)) + (1/(ucla_slope)) + (1/(ucd_slope)) + (1/(uci_slope))*P</span></span>
-<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a><span class="co">#   return(Q)</span></span>
-<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a><span class="co"># }</span></span>
-<span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a><span class="co"># agg_mac(2)</span></span>
-<span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-22"><a href="#cb27-22" aria-hidden="true" tabindex="-1"></a><span class="co"># #alternatively supply curves solving for Q are:</span></span>
-<span id="cb27-23"><a href="#cb27-23" aria-hidden="true" tabindex="-1"></a><span class="co"># ucsb_mac_Q = function(P){</span></span>
-<span id="cb27-24"><a href="#cb27-24" aria-hidden="true" tabindex="-1"></a><span class="co">#   Q = P/ucsb_slope</span></span>
-<span id="cb27-25"><a href="#cb27-25" aria-hidden="true" tabindex="-1"></a><span class="co">#   return(Q)}</span></span>
-<span id="cb27-26"><a href="#cb27-26" aria-hidden="true" tabindex="-1"></a><span class="co"># ucla_mac_Q = function(P){</span></span>
-<span id="cb27-27"><a href="#cb27-27" aria-hidden="true" tabindex="-1"></a><span class="co">#   Q = P/ucla_slope</span></span>
-<span id="cb27-28"><a href="#cb27-28" aria-hidden="true" tabindex="-1"></a><span class="co">#   return(Q)}</span></span>
-<span id="cb27-29"><a href="#cb27-29" aria-hidden="true" tabindex="-1"></a><span class="co"># ucd_mac_Q = function(P){</span></span>
-<span id="cb27-30"><a href="#cb27-30" aria-hidden="true" tabindex="-1"></a><span class="co">#   Q = P/ucd_slope</span></span>
-<span id="cb27-31"><a href="#cb27-31" aria-hidden="true" tabindex="-1"></a><span class="co">#   return(Q)}</span></span>
-<span id="cb27-32"><a href="#cb27-32" aria-hidden="true" tabindex="-1"></a><span class="co"># uci_mac_Q = function(P){</span></span>
-<span id="cb27-33"><a href="#cb27-33" aria-hidden="true" tabindex="-1"></a><span class="co">#   Q = P/uci_slope</span></span>
-<span id="cb27-34"><a href="#cb27-34" aria-hidden="true" tabindex="-1"></a><span class="co">#   return(Q)}</span></span>
-<span id="cb27-35"><a href="#cb27-35" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb27-36"><a href="#cb27-36" aria-hidden="true" tabindex="-1"></a><span class="co"># #aggregate supply curve is given by:</span></span>
-<span id="cb27-37"><a href="#cb27-37" aria-hidden="true" tabindex="-1"></a><span class="co"># agg_mac_Q = function(P){</span></span>
-<span id="cb27-38"><a href="#cb27-38" aria-hidden="true" tabindex="-1"></a><span class="co">#   Q = ucsb_mac_Q(P) + ucla_mac_Q(P) + ucd_mac_Q(P) + uci_mac_Q(P)</span></span>
-<span id="cb27-39"><a href="#cb27-39" aria-hidden="true" tabindex="-1"></a><span class="co">#   return(Q)</span></span>
-<span id="cb27-40"><a href="#cb27-40" aria-hidden="true" tabindex="-1"></a><span class="co"># }</span></span>
-<span id="cb27-41"><a href="#cb27-41" aria-hidden="true" tabindex="-1"></a><span class="co"># agg_mac_Q(2)</span></span>
-<span id="cb27-42"><a href="#cb27-42" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-43"><a href="#cb27-43" aria-hidden="true" tabindex="-1"></a><span class="co">#aggregate supply curve is given by:</span></span>
-<span id="cb27-44"><a href="#cb27-44" aria-hidden="true" tabindex="-1"></a>agg_mac_Q <span class="ot">=</span> <span class="cf">function</span>(P){</span>
-<span id="cb27-45"><a href="#cb27-45" aria-hidden="true" tabindex="-1"></a>  Q <span class="ot">=</span> (P<span class="sc">/</span>ucsb_slope) <span class="sc">+</span> (P<span class="sc">/</span>ucla_slope) <span class="sc">+</span> (P<span class="sc">/</span>ucd_slope) <span class="sc">+</span> (P<span class="sc">/</span>uci_slope) </span>
-<span id="cb27-46"><a href="#cb27-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(Q)</span>
-<span id="cb27-47"><a href="#cb27-47" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb27-48"><a href="#cb27-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-49"><a href="#cb27-49" aria-hidden="true" tabindex="-1"></a><span class="fu">agg_mac_Q</span>(<span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="co"># #plot marginal abatement cost curves</span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a><span class="co"># plot_0 = emissions %&gt;%</span></span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a><span class="co">#   filter(site == "ucsb") %&gt;%</span></span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a><span class="co">#   ggplot(aes(x = reduction, y = abatement)) +</span></span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a><span class="co">#   geom_point() +</span></span>
+<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a><span class="co">#   geom_smooth(method = 'lm', se = FALSE, color = "coral") +</span></span>
+<span id="cb49-7"><a href="#cb49-7" aria-hidden="true" tabindex="-1"></a><span class="co">#   stat_regline_equation(label.y = 185000, aes(label = ..eq.label.., color = 'coral'))+</span></span>
+<span id="cb49-8"><a href="#cb49-8" aria-hidden="true" tabindex="-1"></a><span class="co">#   labs(x = "Abatement (tons of CO2)", y =  "Marginal Cost ($ per ton of CO2)") +</span></span>
+<span id="cb49-9"><a href="#cb49-9" aria-hidden="true" tabindex="-1"></a><span class="co">#   theme_minimal() +</span></span>
+<span id="cb49-10"><a href="#cb49-10" aria-hidden="true" tabindex="-1"></a><span class="co">#   theme(legend.position = 'none')</span></span>
+<span id="cb49-11"><a href="#cb49-11" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb49-12"><a href="#cb49-12" aria-hidden="true" tabindex="-1"></a><span class="co"># plot_0</span></span>
+<span id="cb49-13"><a href="#cb49-13" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb49-14"><a href="#cb49-14" aria-hidden="true" tabindex="-1"></a><span class="co"># plot_1 = emissions %&gt;%</span></span>
+<span id="cb49-15"><a href="#cb49-15" aria-hidden="true" tabindex="-1"></a><span class="co">#   filter(site == "ucla") %&gt;%</span></span>
+<span id="cb49-16"><a href="#cb49-16" aria-hidden="true" tabindex="-1"></a><span class="co">#   ggplot(aes(x = reduction, y = abatement)) +</span></span>
+<span id="cb49-17"><a href="#cb49-17" aria-hidden="true" tabindex="-1"></a><span class="co">#   geom_point() +</span></span>
+<span id="cb49-18"><a href="#cb49-18" aria-hidden="true" tabindex="-1"></a><span class="co">#   geom_smooth(method = 'lm', se = FALSE, color = "goldenrod") +</span></span>
+<span id="cb49-19"><a href="#cb49-19" aria-hidden="true" tabindex="-1"></a><span class="co">#   stat_regline_equation(label.y = 185000, aes(label = ..eq.label.., color = 'goldenrod'))+</span></span>
+<span id="cb49-20"><a href="#cb49-20" aria-hidden="true" tabindex="-1"></a><span class="co">#   labs(x = "Abatement (tons of CO2)", y =  "Marginal Cost ($ per ton of CO2)") +</span></span>
+<span id="cb49-21"><a href="#cb49-21" aria-hidden="true" tabindex="-1"></a><span class="co">#   theme_minimal() +</span></span>
+<span id="cb49-22"><a href="#cb49-22" aria-hidden="true" tabindex="-1"></a><span class="co">#   theme(legend.position = 'none')</span></span>
+<span id="cb49-23"><a href="#cb49-23" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb49-24"><a href="#cb49-24" aria-hidden="true" tabindex="-1"></a><span class="co"># plot_1</span></span>
+<span id="cb49-25"><a href="#cb49-25" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb49-26"><a href="#cb49-26" aria-hidden="true" tabindex="-1"></a><span class="co"># plot_2 = emissions %&gt;%</span></span>
+<span id="cb49-27"><a href="#cb49-27" aria-hidden="true" tabindex="-1"></a><span class="co">#   filter(site == "uci") %&gt;%</span></span>
+<span id="cb49-28"><a href="#cb49-28" aria-hidden="true" tabindex="-1"></a><span class="co">#   ggplot(aes(x = reduction, y = abatement)) +</span></span>
+<span id="cb49-29"><a href="#cb49-29" aria-hidden="true" tabindex="-1"></a><span class="co">#   geom_point() +</span></span>
+<span id="cb49-30"><a href="#cb49-30" aria-hidden="true" tabindex="-1"></a><span class="co">#   geom_smooth(method = 'lm', se = FALSE, color = "goldenrod") +</span></span>
+<span id="cb49-31"><a href="#cb49-31" aria-hidden="true" tabindex="-1"></a><span class="co">#   stat_regline_equation(label.y = 185000, aes(label = ..eq.label.., color = 'goldenrod'))+</span></span>
+<span id="cb49-32"><a href="#cb49-32" aria-hidden="true" tabindex="-1"></a><span class="co">#   labs(x = "Abatement (tons of CO2)", y =  "Marginal Cost ($ per ton of CO2)") +</span></span>
+<span id="cb49-33"><a href="#cb49-33" aria-hidden="true" tabindex="-1"></a><span class="co">#   theme_minimal() +</span></span>
+<span id="cb49-34"><a href="#cb49-34" aria-hidden="true" tabindex="-1"></a><span class="co">#   theme(legend.position = 'none')</span></span>
+<span id="cb49-35"><a href="#cb49-35" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb49-36"><a href="#cb49-36" aria-hidden="true" tabindex="-1"></a><span class="co"># plot_2</span></span>
+<span id="cb49-37"><a href="#cb49-37" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb49-38"><a href="#cb49-38" aria-hidden="true" tabindex="-1"></a><span class="co"># plot_3 = emissions %&gt;%</span></span>
+<span id="cb49-39"><a href="#cb49-39" aria-hidden="true" tabindex="-1"></a><span class="co">#   filter(site == "ucd") %&gt;%</span></span>
+<span id="cb49-40"><a href="#cb49-40" aria-hidden="true" tabindex="-1"></a><span class="co">#   ggplot(aes(x = reduction, y = abatement)) +</span></span>
+<span id="cb49-41"><a href="#cb49-41" aria-hidden="true" tabindex="-1"></a><span class="co">#   geom_point() +</span></span>
+<span id="cb49-42"><a href="#cb49-42" aria-hidden="true" tabindex="-1"></a><span class="co">#   geom_smooth(method = 'lm', se = FALSE, color = "goldenrod") +</span></span>
+<span id="cb49-43"><a href="#cb49-43" aria-hidden="true" tabindex="-1"></a><span class="co">#   stat_regline_equation(label.y = 185000, aes(label = ..eq.label.., color = 'goldenrod'))+</span></span>
+<span id="cb49-44"><a href="#cb49-44" aria-hidden="true" tabindex="-1"></a><span class="co">#   labs(x = "Abatement (tons of CO2)", y =  "Marginal Cost ($ per ton of CO2)") +</span></span>
+<span id="cb49-45"><a href="#cb49-45" aria-hidden="true" tabindex="-1"></a><span class="co">#   theme_minimal() +</span></span>
+<span id="cb49-46"><a href="#cb49-46" aria-hidden="true" tabindex="-1"></a><span class="co">#   theme(legend.position = 'none')</span></span>
+<span id="cb49-47"><a href="#cb49-47" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb49-48"><a href="#cb49-48" aria-hidden="true" tabindex="-1"></a><span class="co"># plot_3</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="co"># #combine plots</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="co"># plot = plot_grid(plot_0, plot_1, plot_2, plot_3)</span></span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a><span class="co"># plot</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="co"># #supply curves from the lm are now:</span></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ucsb_mac = function(Q){</span></span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a><span class="co">#   P = ucsb_slope*Q</span></span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a><span class="co">#   return(P)}</span></span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a><span class="co"># ucla_mac = function(Q){</span></span>
+<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a><span class="co">#   P = ucla_slope*Q</span></span>
+<span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a><span class="co">#   return(P)}</span></span>
+<span id="cb51-8"><a href="#cb51-8" aria-hidden="true" tabindex="-1"></a><span class="co"># ucd_mac = function(Q){</span></span>
+<span id="cb51-9"><a href="#cb51-9" aria-hidden="true" tabindex="-1"></a><span class="co">#   P = ucd_slope*Q</span></span>
+<span id="cb51-10"><a href="#cb51-10" aria-hidden="true" tabindex="-1"></a><span class="co">#   return(P)}</span></span>
+<span id="cb51-11"><a href="#cb51-11" aria-hidden="true" tabindex="-1"></a><span class="co"># uci_mac = function(Q){</span></span>
+<span id="cb51-12"><a href="#cb51-12" aria-hidden="true" tabindex="-1"></a><span class="co">#   P = uci_slope*Q</span></span>
+<span id="cb51-13"><a href="#cb51-13" aria-hidden="true" tabindex="-1"></a><span class="co">#   return(P)}</span></span>
+<span id="cb51-14"><a href="#cb51-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-15"><a href="#cb51-15" aria-hidden="true" tabindex="-1"></a><span class="co"># #aggregate supply curve is given by:</span></span>
+<span id="cb51-16"><a href="#cb51-16" aria-hidden="true" tabindex="-1"></a><span class="co"># agg_mac = function(P){</span></span>
+<span id="cb51-17"><a href="#cb51-17" aria-hidden="true" tabindex="-1"></a><span class="co">#   Q = (1/(ucsb_slope)) + (1/(ucla_slope)) + (1/(ucd_slope)) + (1/(uci_slope))*P</span></span>
+<span id="cb51-18"><a href="#cb51-18" aria-hidden="true" tabindex="-1"></a><span class="co">#   return(Q)</span></span>
+<span id="cb51-19"><a href="#cb51-19" aria-hidden="true" tabindex="-1"></a><span class="co"># }</span></span>
+<span id="cb51-20"><a href="#cb51-20" aria-hidden="true" tabindex="-1"></a><span class="co"># agg_mac(2)</span></span>
+<span id="cb51-21"><a href="#cb51-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-22"><a href="#cb51-22" aria-hidden="true" tabindex="-1"></a><span class="co"># #alternatively supply curves solving for Q are:</span></span>
+<span id="cb51-23"><a href="#cb51-23" aria-hidden="true" tabindex="-1"></a><span class="co"># ucsb_mac_Q = function(P){</span></span>
+<span id="cb51-24"><a href="#cb51-24" aria-hidden="true" tabindex="-1"></a><span class="co">#   Q = P/ucsb_slope</span></span>
+<span id="cb51-25"><a href="#cb51-25" aria-hidden="true" tabindex="-1"></a><span class="co">#   return(Q)}</span></span>
+<span id="cb51-26"><a href="#cb51-26" aria-hidden="true" tabindex="-1"></a><span class="co"># ucla_mac_Q = function(P){</span></span>
+<span id="cb51-27"><a href="#cb51-27" aria-hidden="true" tabindex="-1"></a><span class="co">#   Q = P/ucla_slope</span></span>
+<span id="cb51-28"><a href="#cb51-28" aria-hidden="true" tabindex="-1"></a><span class="co">#   return(Q)}</span></span>
+<span id="cb51-29"><a href="#cb51-29" aria-hidden="true" tabindex="-1"></a><span class="co"># ucd_mac_Q = function(P){</span></span>
+<span id="cb51-30"><a href="#cb51-30" aria-hidden="true" tabindex="-1"></a><span class="co">#   Q = P/ucd_slope</span></span>
+<span id="cb51-31"><a href="#cb51-31" aria-hidden="true" tabindex="-1"></a><span class="co">#   return(Q)}</span></span>
+<span id="cb51-32"><a href="#cb51-32" aria-hidden="true" tabindex="-1"></a><span class="co"># uci_mac_Q = function(P){</span></span>
+<span id="cb51-33"><a href="#cb51-33" aria-hidden="true" tabindex="-1"></a><span class="co">#   Q = P/uci_slope</span></span>
+<span id="cb51-34"><a href="#cb51-34" aria-hidden="true" tabindex="-1"></a><span class="co">#   return(Q)}</span></span>
+<span id="cb51-35"><a href="#cb51-35" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb51-36"><a href="#cb51-36" aria-hidden="true" tabindex="-1"></a><span class="co"># #aggregate supply curve is given by:</span></span>
+<span id="cb51-37"><a href="#cb51-37" aria-hidden="true" tabindex="-1"></a><span class="co"># agg_mac_Q = function(P){</span></span>
+<span id="cb51-38"><a href="#cb51-38" aria-hidden="true" tabindex="-1"></a><span class="co">#   Q = ucsb_mac_Q(P) + ucla_mac_Q(P) + ucd_mac_Q(P) + uci_mac_Q(P)</span></span>
+<span id="cb51-39"><a href="#cb51-39" aria-hidden="true" tabindex="-1"></a><span class="co">#   return(Q)</span></span>
+<span id="cb51-40"><a href="#cb51-40" aria-hidden="true" tabindex="-1"></a><span class="co"># }</span></span>
+<span id="cb51-41"><a href="#cb51-41" aria-hidden="true" tabindex="-1"></a><span class="co"># agg_mac_Q(2)</span></span>
+<span id="cb51-42"><a href="#cb51-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-43"><a href="#cb51-43" aria-hidden="true" tabindex="-1"></a><span class="co">#aggregate supply curve is given by:</span></span>
+<span id="cb51-44"><a href="#cb51-44" aria-hidden="true" tabindex="-1"></a>agg_mac_Q <span class="ot">=</span> <span class="cf">function</span>(P){</span>
+<span id="cb51-45"><a href="#cb51-45" aria-hidden="true" tabindex="-1"></a>  Q <span class="ot">=</span> (P<span class="sc">/</span>ucsb_slope) <span class="sc">+</span> (P<span class="sc">/</span>ucla_slope) <span class="sc">+</span> (P<span class="sc">/</span>ucd_slope) <span class="sc">+</span> (P<span class="sc">/</span>uci_slope) </span>
+<span id="cb51-46"><a href="#cb51-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(Q)</span>
+<span id="cb51-47"><a href="#cb51-47" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb51-48"><a href="#cb51-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-49"><a href="#cb51-49" aria-hidden="true" tabindex="-1"></a><span class="fu">agg_mac_Q</span>(<span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 6500.426</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>test <span class="ot">=</span> (<span class="dv">1</span><span class="sc">/</span>ucsb_slope) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">/</span>ucla_slope) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">/</span>ucd_slope) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">/</span>uci_slope) </span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="co">#agg mac curve is Q = 0.006763328*P </span></span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="co">#or P = Q/0.006763328</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>test <span class="ot">=</span> (<span class="dv">1</span><span class="sc">/</span>ucsb_slope) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">/</span>ucla_slope) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">/</span>ucd_slope) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">/</span>uci_slope) </span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a><span class="co">#agg mac curve is Q = 0.006763328*P </span></span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a><span class="co">#or P = Q/0.006763328</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co">#demand curves are given by:</span></span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>ucsb_d <span class="ot">=</span> <span class="cf">function</span>(Q){</span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="co">#P = ucsb_slope*(ucsb_baseline - Q)</span></span>
-<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  P <span class="ot">=</span> <span class="fu">compute_demand_P</span>(<span class="at">slope =</span> ucsb_slope, <span class="at">baseline =</span> ucsb_baseline, <span class="at">emissions =</span> Q)</span>
-<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(P)</span>
-<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>ucla_d <span class="ot">=</span> <span class="cf">function</span>(Q){</span>
-<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>  <span class="co">#P = ucla_slope*(ucla_baseline - Q)</span></span>
-<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>  P <span class="ot">=</span> <span class="fu">compute_demand_P</span>(<span class="at">slope =</span> ucla_slope, <span class="at">baseline =</span> ucla_baseline, <span class="at">emissions =</span> Q)</span>
-<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(P)</span>
-<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>ucd_d <span class="ot">=</span> <span class="cf">function</span>(Q){</span>
-<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a>  P <span class="ot">=</span> <span class="fu">compute_demand_P</span>(<span class="at">slope =</span> ucd_slope, <span class="at">baseline =</span> ucd_baseline, <span class="at">emissions =</span> Q)</span>
-<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(P)</span>
-<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a>uci_d <span class="ot">=</span> <span class="cf">function</span>(Q){</span>
-<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a>  P <span class="ot">=</span> <span class="fu">compute_demand_P</span>(<span class="at">slope =</span> uci_slope, <span class="at">baseline =</span> uci_baseline, <span class="at">emissions =</span> Q)</span>
-<span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(P)</span>
-<span id="cb30-19"><a href="#cb30-19" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb30-20"><a href="#cb30-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-21"><a href="#cb30-21" aria-hidden="true" tabindex="-1"></a><span class="co">#aggregate demand curve is given by:</span></span>
-<span id="cb30-22"><a href="#cb30-22" aria-hidden="true" tabindex="-1"></a>agg_d_Q <span class="ot">=</span> <span class="cf">function</span>(P){</span>
-<span id="cb30-23"><a href="#cb30-23" aria-hidden="true" tabindex="-1"></a>  Q <span class="ot">=</span> (((ucsb_slope<span class="sc">*</span>ucsb_baseline) <span class="sc">-</span> P)<span class="sc">/</span> ucsb_slope) <span class="sc">+</span> (((ucla_slope<span class="sc">*</span>ucla_baseline) <span class="sc">-</span> P)<span class="sc">/</span> ucla_slope) <span class="sc">+</span> (((ucd_slope<span class="sc">*</span>ucd_baseline) <span class="sc">-</span> P)<span class="sc">/</span> ucd_slope) <span class="sc">+</span> (((uci_slope<span class="sc">*</span>uci_baseline) <span class="sc">-</span> P)<span class="sc">/</span> uci_slope)</span>
-<span id="cb30-24"><a href="#cb30-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(Q)</span>
-<span id="cb30-25"><a href="#cb30-25" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="co"># #demand curves are given by:</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ucsb_d = function(Q){</span></span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a><span class="co">#   #P = ucsb_slope*(ucsb_baseline - Q)</span></span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a><span class="co">#   P = compute_demand_P(slope = ucsb_slope, baseline = ucsb_baseline, emissions = Q)</span></span>
+<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a><span class="co">#   return(P)</span></span>
+<span id="cb54-6"><a href="#cb54-6" aria-hidden="true" tabindex="-1"></a><span class="co">#   }</span></span>
+<span id="cb54-7"><a href="#cb54-7" aria-hidden="true" tabindex="-1"></a><span class="co"># ucla_d = function(Q){</span></span>
+<span id="cb54-8"><a href="#cb54-8" aria-hidden="true" tabindex="-1"></a><span class="co">#   #P = ucla_slope*(ucla_baseline - Q)</span></span>
+<span id="cb54-9"><a href="#cb54-9" aria-hidden="true" tabindex="-1"></a><span class="co">#   P = compute_demand_P(slope = ucla_slope, baseline = ucla_baseline, emissions = Q)</span></span>
+<span id="cb54-10"><a href="#cb54-10" aria-hidden="true" tabindex="-1"></a><span class="co">#   return(P)</span></span>
+<span id="cb54-11"><a href="#cb54-11" aria-hidden="true" tabindex="-1"></a><span class="co">#   }</span></span>
+<span id="cb54-12"><a href="#cb54-12" aria-hidden="true" tabindex="-1"></a><span class="co"># ucd_d = function(Q){</span></span>
+<span id="cb54-13"><a href="#cb54-13" aria-hidden="true" tabindex="-1"></a><span class="co">#   P = compute_demand_P(slope = ucd_slope, baseline = ucd_baseline, emissions = Q)</span></span>
+<span id="cb54-14"><a href="#cb54-14" aria-hidden="true" tabindex="-1"></a><span class="co">#   return(P)</span></span>
+<span id="cb54-15"><a href="#cb54-15" aria-hidden="true" tabindex="-1"></a><span class="co">#   }</span></span>
+<span id="cb54-16"><a href="#cb54-16" aria-hidden="true" tabindex="-1"></a><span class="co"># uci_d = function(Q){</span></span>
+<span id="cb54-17"><a href="#cb54-17" aria-hidden="true" tabindex="-1"></a><span class="co">#   P = compute_demand_P(slope = uci_slope, baseline = uci_baseline, emissions = Q)</span></span>
+<span id="cb54-18"><a href="#cb54-18" aria-hidden="true" tabindex="-1"></a><span class="co">#   return(P)</span></span>
+<span id="cb54-19"><a href="#cb54-19" aria-hidden="true" tabindex="-1"></a><span class="co">#   }</span></span>
+<span id="cb54-20"><a href="#cb54-20" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb54-21"><a href="#cb54-21" aria-hidden="true" tabindex="-1"></a><span class="co"># #aggregate demand curve is given by:</span></span>
+<span id="cb54-22"><a href="#cb54-22" aria-hidden="true" tabindex="-1"></a><span class="co"># agg_d_Q = function(P){</span></span>
+<span id="cb54-23"><a href="#cb54-23" aria-hidden="true" tabindex="-1"></a><span class="co">#   Q = (((ucsb_slope*ucsb_baseline) - P)/ ucsb_slope) + (((ucla_slope*ucla_baseline) - P)/ ucla_slope) + (((ucd_slope*ucd_baseline) - P)/ ucd_slope) + (((uci_slope*uci_baseline) - P)/ uci_slope)</span></span>
+<span id="cb54-24"><a href="#cb54-24" aria-hidden="true" tabindex="-1"></a><span class="co">#   return(Q)</span></span>
+<span id="cb54-25"><a href="#cb54-25" aria-hidden="true" tabindex="-1"></a><span class="co"># }</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co">#messing around to understand mac, agg mac, mb, agg mb</span></span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> </span>
-<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_function</span>(<span class="at">fun =</span> agg_mac_Q)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="ESM204_a2_Art_Kristin_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="672"></p>
-</div>
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> </span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_function</span>(<span class="at">fun =</span> agg_d_Q)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="ESM204_a2_Art_Kristin_files/figure-html/unnamed-chunk-12-2.png" class="img-fluid" width="672"></p>
-</div>
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> </span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_function</span>(<span class="at">fun =</span> ucsb_mac , <span class="fu">aes</span>(<span class="at">color =</span> <span class="st">"UCSB"</span>), <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_function</span>(<span class="at">fun =</span> ucla_mac , <span class="fu">aes</span>(<span class="at">color =</span> <span class="st">"UCLA"</span>), <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_function</span>(<span class="at">fun =</span> ucd_mac , <span class="fu">aes</span>(<span class="at">color =</span> <span class="st">"UCD"</span>), <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_function</span>(<span class="at">fun =</span> uci_mac , <span class="fu">aes</span>(<span class="at">color =</span> <span class="st">"UCI"</span>), <span class="at">size =</span> <span class="dv">1</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="ESM204_a2_Art_Kristin_files/figure-html/unnamed-chunk-12-3.png" class="img-fluid" width="672"></p>
-</div>
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> </span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_function</span>(<span class="at">fun =</span> ucsb_d , <span class="fu">aes</span>(<span class="at">color =</span> <span class="st">"UCSB"</span>), <span class="at">size =</span> <span class="dv">1</span>) <span class="co">#+ #strangely it doesnt like when I plot multiple demand function</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="ESM204_a2_Art_Kristin_files/figure-html/unnamed-chunk-12-4.png" class="img-fluid" width="672"></p>
-</div>
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>  <span class="co"># geom_function(fun = ucla_d , aes(color = "UCLA"), size = 1) +</span></span>
-<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># geom_function(fun = ucd_d , aes(color = "UCD"), size = 1) +</span></span>
-<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># geom_function(fun = uci_d , aes(color = "UCI"), size = 1) </span></span>
-<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> </span>
-<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_function</span>(<span class="at">fun =</span> ucsb_mac , <span class="fu">aes</span>(<span class="at">color =</span> <span class="st">"UCSB"</span>), <span class="at">size =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="ESM204_a2_Art_Kristin_files/figure-html/unnamed-chunk-12-5.png" class="img-fluid" width="672"></p>
-</div>
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="co"># #messing around to understand mac, agg mac, mb, agg mb</span></span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ggplot() + </span></span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a><span class="co">#   geom_function(fun = agg_mac_Q)</span></span>
+<span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb55-5"><a href="#cb55-5" aria-hidden="true" tabindex="-1"></a><span class="co"># ggplot() + </span></span>
+<span id="cb55-6"><a href="#cb55-6" aria-hidden="true" tabindex="-1"></a><span class="co">#   geom_function(fun = agg_d_Q)</span></span>
+<span id="cb55-7"><a href="#cb55-7" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb55-8"><a href="#cb55-8" aria-hidden="true" tabindex="-1"></a><span class="co"># ggplot() + </span></span>
+<span id="cb55-9"><a href="#cb55-9" aria-hidden="true" tabindex="-1"></a><span class="co">#   geom_function(fun = ucsb_mac , aes(color = "UCSB"), size = 1) +</span></span>
+<span id="cb55-10"><a href="#cb55-10" aria-hidden="true" tabindex="-1"></a><span class="co">#   geom_function(fun = ucla_mac , aes(color = "UCLA"), size = 1) +</span></span>
+<span id="cb55-11"><a href="#cb55-11" aria-hidden="true" tabindex="-1"></a><span class="co">#   geom_function(fun = ucd_mac , aes(color = "UCD"), size = 1) +</span></span>
+<span id="cb55-12"><a href="#cb55-12" aria-hidden="true" tabindex="-1"></a><span class="co">#   geom_function(fun = uci_mac , aes(color = "UCI"), size = 1) </span></span>
+<span id="cb55-13"><a href="#cb55-13" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb55-14"><a href="#cb55-14" aria-hidden="true" tabindex="-1"></a><span class="co"># ggplot() + </span></span>
+<span id="cb55-15"><a href="#cb55-15" aria-hidden="true" tabindex="-1"></a><span class="co">#   geom_function(fun = ucsb_d , aes(color = "UCSB"), size = 1) #+ #strangely it doesnt like when I plot multiple demand function</span></span>
+<span id="cb55-16"><a href="#cb55-16" aria-hidden="true" tabindex="-1"></a><span class="co">#   # geom_function(fun = ucla_d , aes(color = "UCLA"), size = 1) +</span></span>
+<span id="cb55-17"><a href="#cb55-17" aria-hidden="true" tabindex="-1"></a><span class="co">#   # geom_function(fun = ucd_d , aes(color = "UCD"), size = 1) +</span></span>
+<span id="cb55-18"><a href="#cb55-18" aria-hidden="true" tabindex="-1"></a><span class="co">#   # geom_function(fun = uci_d , aes(color = "UCI"), size = 1) </span></span>
+<span id="cb55-19"><a href="#cb55-19" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb55-20"><a href="#cb55-20" aria-hidden="true" tabindex="-1"></a><span class="co"># ggplot() + </span></span>
+<span id="cb55-21"><a href="#cb55-21" aria-hidden="true" tabindex="-1"></a><span class="co">#   geom_function(fun = ucsb_mac , aes(color = "UCSB"), size = 1)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 
