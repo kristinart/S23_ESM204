@@ -1,8 +1,8 @@
 ---
-title: "ESM204_a2"
-author: "Kristin Art & Simone Berkovitz"
-format: html
-editor: visual
+title: "ESM204_a2_Art_Kristin"
+author: "K.H.Art"
+date: "2023-04-26"
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
