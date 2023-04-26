@@ -89,9 +89,6 @@ emissions_mod = emissions %>%
       site == 'uci' ~ uci_slope,
       site == 'ucd' ~ ucd_slope))
 
-```
-
-```{r}
 #write out the MAC equations
 equatiomatic::extract_eq(ucsb_lm, use_coefs = TRUE, coef_digits = 8)
 equatiomatic::extract_eq(ucla_lm, use_coefs = TRUE, coef_digits = 8)
@@ -131,7 +128,13 @@ ucd_d_df = emissions_mod %>%
   filter(site == "ucd")
 ucd_d_lm <- lm(demand ~ abatement, data = ucd_d_df)
 
+#write out the demand equations
+equatiomatic::extract_eq(ucsb_d_lm, use_coefs = TRUE, coef_digits = 8)
+equatiomatic::extract_eq(ucla_d_lm, use_coefs = TRUE, coef_digits = 8)
+equatiomatic::extract_eq(ucd_d_lm, use_coefs = TRUE, coef_digits = 8)
+equatiomatic::extract_eq(uci_d_lm, use_coefs = TRUE, coef_digits = 8)
 ```
+
 
 ```{r}
 #plot demand curve for all sites
@@ -165,27 +168,27 @@ compute_abatement_Q = function(baseline, emit_Q){
 
 ucsb_emit_Q = compute_demand_Q(ucsb_slope, ucsb_baseline, price = 50)
 ucsb_abate_Q = compute_abatement_Q(ucsb_baseline, ucsb_emit_Q)
-results = paste0("Under intervention #1, UCSB will emit " , ucsb_emit_Q, " tons of carbon and abate ", ucsb_abate_Q, " tons of carbon.")
+results = paste0("Under intervention #1 (carbon tax), UCSB will emit " , ucsb_emit_Q, " tons of carbon and abate ", ucsb_abate_Q, " tons of carbon.")
 print(results)
 
 ucla_emit_Q = compute_demand_Q(ucla_slope, ucla_baseline, price = 50)
 ucla_abate_Q = compute_abatement_Q(ucla_baseline, ucla_emit_Q)
-results = paste0("Under intervention #1, UCLA will emit " , ucla_emit_Q, " tons of carbon and abate ", ucla_abate_Q, " tons of carbon.")
+results = paste0("Under intervention #1 (carbon tax), UCLA will emit " , ucla_emit_Q, " tons of carbon and abate ", ucla_abate_Q, " tons of carbon.")
 print(results)
 
 ucd_emit_Q = compute_demand_Q(ucd_slope, ucd_baseline, price = 50)
 ucd_abate_Q = compute_abatement_Q(ucd_baseline, ucd_emit_Q)
-results = paste0("Under intervention #1, UCD will emit " , ucd_emit_Q, " tons of carbon and abate ", ucd_abate_Q, " tons of carbon.")
+results = paste0("Under intervention #1 (carbon tax), UCD will emit " , ucd_emit_Q, " tons of carbon and abate ", ucd_abate_Q, " tons of carbon.")
 print(results)
 
 uci_emit_Q = compute_demand_Q(uci_slope, uci_baseline, price = 50)
 uci_abate_Q = compute_abatement_Q(uci_baseline, uci_emit_Q)
-results = paste0("Under intervention #1, UCI will emit " , uci_emit_Q, " tons of carbon and abate ", uci_abate_Q, " tons of carbon.")
+results = paste0("Under intervention #1 (carbon tax), UCI will emit " , uci_emit_Q, " tons of carbon and abate ", uci_abate_Q, " tons of carbon.")
 print(results)
 
 total_emitted <- ucsb_emit_Q + ucla_emit_Q + uci_emit_Q + ucd_emit_Q
 total_revenue <- total_emitted*50
-results = paste0("Under intervention #1, the four campuses will emit a total of" , total_emitted, " tons of carbon and generate $", total_revenue, " in tax revenue.")
+results = paste0("Under intervention #1 (carbon tax), the four campuses will emit a total of" , total_emitted, " tons of carbon and generate $", total_revenue, " in tax revenue.")
 print(results)
 
 ```
@@ -193,12 +196,78 @@ print(results)
 b.  Intervention #2: Carbon Ban: Carbon emissions are banned at each campus. What is the total cost of this ban to each campus?
 
 ```{r}
+#supply curves from the lm are now:
+ucsb_mac = function(Q){
+  P = ucsb_slope*Q
+  return(P)}
+ucla_mac = function(Q){
+  P = ucla_slope*Q
+  return(P)}
+ucd_mac = function(Q){
+  P = ucd_slope*Q
+  return(P)}
+uci_mac = function(Q){
+  P = uci_slope*Q
+  return(P)}
 
+
+ucsb_ban_P = abs(integral(f = ucsb_mac, xmin = ucsb_baseline, xmax = 0))
+ucla_ban_P = abs(integral(f = ucla_mac, xmin = ucla_baseline, xmax = 0))
+ucd_ban_P = abs(integral(f = ucd_mac, xmin = ucd_baseline, xmax = 0))
+uci_ban_P = abs(integral(f = uci_mac, xmin = uci_baseline, xmax = 0))
+
+total_ban_P = sum(ucsb_ban_P, ucla_ban_P, ucd_ban_P, uci_ban_P)
+
+results = paste0("Intervention #2 (carbon ban) will cost $", ucsb_ban_P," at UCSB, $", ucla_ban_P, " at UCLA, $", ucd_ban_P, " at UCD, and $", uci_ban_P, "at UCI. The total cost to all four campuses is $", total_ban_P, ".")
+print(results)
 
 ```
 
-
 c.  Intervention #3: Cap without Trade: Each campus is capped at 100,000 tons of carbon. How much abatement would be required by each campus to comply with this cap? What is the marginal cost of the last unit of abatement for each campus? What is the total cost of abatement for each campus to comply with this new cap?
+
+```{r}
+#How much abatement would be required by each campus to comply with this cap?
+#apply generic function from above to calculate abatement Q 
+emit_Q2 = 100000
+
+ucsb_abate_Q2 = compute_abatement_Q(ucsb_baseline, emit_Q2)
+ucla_abate_Q2 = compute_abatement_Q(ucla_baseline, emit_Q2)
+ucd_abate_Q2 = compute_abatement_Q(ucd_baseline, emit_Q2)
+uci_abate_Q2 = compute_abatement_Q(uci_baseline, emit_Q2)
+
+results = paste0("Under intervention #3 (cap without trade), UCSB will abate ", ucsb_abate_Q2, ", UCLA will abate ", ucla_abate_Q2, ", UCD will abate ", ucd_abate_Q2, ", and UCI will abate ", uci_abate_Q2,".")
+print(results)
+
+#What is the marginal cost of the last unit of abatement for each campus?
+#is this right??? 
+ucsb_cap_P = (integral(f = ucsb_mac, xmin = (ucsb_abate_Q2-1), xmax = ucsb_abate_Q2))
+ucla_cap_P = (integral(f = ucla_mac, xmin = (ucla_abate_Q2-1), xmax = ucla_abate_Q2))
+ucd_cap_P = (integral(f = ucd_mac, xmin = (ucd_abate_Q2-1), xmax = ucd_abate_Q2))
+uci_cap_P = (integral(f = uci_mac, xmin = (uci_abate_Q2-1), xmax = uci_abate_Q2))
+
+results = paste0("Under intervention #3 (cap without trade), the cost of the last unit of abatement for each campus will be $", ucsb_cap_P, " for UCSB, $", ucla_cap_P, " for UCLA, $", ucd_cap_P, " for UCD, and $", uci_cap_P," for UCD.")
+print(results)
+
+#or would it be this? since some campuses would need to reduce 
+ucsb_cap_P = (integral(f = ucsb_mac, xmin = (emit_Q2-1), xmax = emit_Q2))
+ucla_cap_P = (integral(f = ucla_mac, xmin = (emit_Q2-1), xmax = emit_Q2))
+ucd_cap_P = (integral(f = ucd_mac, xmin = (emit_Q2-1), xmax = emit_Q2))
+uci_cap_P = (integral(f = uci_mac, xmin = (emit_Q2-1), xmax = emit_Q2))
+
+results = paste0("Under intervention #3 (cap without trade), the marginal cost of the last unit of abatement for each campus will be $", ucsb_cap_P, " for UCSB, $", ucla_cap_P, " for UCLA, $", ucd_cap_P, " for UCD, and $", uci_cap_P," for UCD.")
+print(results)
+
+#What is the total cost of abatement for each campus to comply with this new cap?
+ucsb_cap_P2 = abs(integral(f = ucsb_mac, xmin = ucsb_baseline, xmax = ucsb_abate_Q2))
+ucla_cap_P2 = abs(integral(f = ucla_mac, xmin = ucla_baseline, xmax = ucla_abate_Q2))
+ucd_cap_P2 = abs(integral(f = ucd_mac, xmin = ucd_baseline, xmax = ucd_abate_Q2))
+uci_cap_P2 = abs(integral(f = uci_mac, xmin = uci_baseline, xmax = uci_abate_Q2))
+
+results = paste0("Under intervention #3 (cap without trade), the total cost for each campus to comply with the cap is $", ucsb_cap_P2, " for UCSB, $", ucla_cap_P2, " for UCLA, $", ucd_cap_P2, " for UCD, and $", uci_cap_P2," for UCD.")
+print(results)
+
+```
+
 
 d.  Intervention #4: Cap with Trade: Suppose each campus is capped at 100,000 tons of carbon, but trade is allowed. With trade, total emissions will be 400,000 but some campuses may emit more or less than 100,000. How much would each campus end up emitting after trade? What is the equilibrium trading price of carbon permits? For each campus, calculate whether they are a buyer or a seller of permits.
 
