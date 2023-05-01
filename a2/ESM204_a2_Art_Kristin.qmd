@@ -56,7 +56,6 @@ plot_1 =
   geom_jitter() + 
   geom_smooth() + 
   #geom_abline(slope = ucsb_slope)+
-  #scale_colour_manual(values = c("#679289","#9C964A","#FDD262","#D6604D")) +
   scale_color_manual(values= wes_palette("GrandBudapest1", n = 4)) +
   labs(title = "Marginal Abatement Cost Curves for UC Campuses", y = "Marginal Abatement Cost ($/ton of carbon)", x = "Abatement (tons of carbon)", color = "Campus") +
   theme_minimal() + 
@@ -147,9 +146,8 @@ equatiomatic::extract_eq(uci_d_lm, use_coefs = TRUE, coef_digits = 8)
 plot_2 = 
   ggplot(emissions_mod, aes(x = abatement, y = demand, color = site)) +
   geom_line(size = 1) +
-  #scale_colour_manual(values = c("#679289","#9C964A","#FDD262","#D6604D")) +
   scale_color_manual(values= wes_palette("GrandBudapest1", n = 4)) +
-  labs(x = "Pollution (tons of carbon)", y =  "Demand ($/ ton of carbon )", color = "Campus", title = "Demand Curves for UC Campuses") +
+  labs(x = "Pollution (tons of carbon)", y =  "Demand ($/ton of carbon)", color = "Campus", title = "Demand Curves for UC Campuses") +
   theme_minimal() +
   theme()+
   ylim(0,500)
@@ -286,9 +284,9 @@ The total cost of abatement for each campus to comply is:
 
 - UCSB: $0
 
-- UCLA: $18,412,662
+- UCLA: $7,891,141
 
-- UCD: $23,588,308
+- UCD: $5,443,456
 
 - UCI: $0
 
@@ -312,11 +310,11 @@ uci_cap_P = uci_mac_P(uci_abate_Q2 )
 
 print(paste0("Under intervention #3 (cap without trade), the cost of the last unit of abatement for each campus will be $", ucsb_cap_P, " for UCSB, $", ucla_cap_P, " for UCLA, $", ucd_cap_P, " for UCD, and $", uci_cap_P," for UCD."))
 
-#calculate total cost of abatement for each campus 
-ucsb_cap_P2 = max(0,(integral(f = ucsb_mac_P, xmin = cap_Q, xmax = ucsb_baseline)))
-ucla_cap_P2 = max(0,(integral(f = ucla_mac_P, xmin = cap_Q, xmax = ucla_baseline)))
-ucd_cap_P2 = max(0,(integral(f = ucd_mac_P, xmin = cap_Q, xmax = ucd_baseline)))
-uci_cap_P2 = max(0,(integral(f = uci_mac_P, xmin = cap_Q, xmax = uci_baseline)))
+#calculate total cost of abatement for each campus by computing the area under the mac curve for the total quantity abated
+ucsb_cap_P2 = max(0,(integral(f = ucsb_mac_P, xmin = 0, xmax = ucsb_abate_Q2)))
+ucla_cap_P2 = max(0,(integral(f = ucla_mac_P, xmin = 0, xmax = ucla_abate_Q2)))
+ucd_cap_P2 = max(0,(integral(f = ucd_mac_P, xmin = 0, xmax = ucd_abate_Q2)))
+uci_cap_P2 = max(0,(integral(f = uci_mac_P, xmin = 0, xmax = uci_abate_Q2)))
 
 print(paste0("Under intervention #3 (cap without trade), the total cost for each campus to comply with the cap is $", ucsb_cap_P2, " for UCSB, $", ucla_cap_P2, " for UCLA, $", ucd_cap_P2, " for UCD, and $", uci_cap_P2," for UCD."))
 
