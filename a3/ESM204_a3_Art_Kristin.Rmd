@@ -1,0 +1,318 @@
+---
+title: "ESM204_a3_Art_Somhegyi"
+author: "K.H.Art"
+date: "2023-05-16"
+output: html_document
+---
+
+```{r setup, echo = TRUE, warning = FALSE, message = FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, results = TRUE)
+library(here)
+library(tidyverse)
+library(janitor)
+library(dplyr)
+library(ggpubr) 
+library(patchwork)
+library(cowplot)
+library(equatiomatic)
+library(pracma)
+library(purrr)
+library(wesanderson)
+```
+### Distributional consequences of the clean energy transition
+
+Use the following set of facts:
+• We are concerned about the environmental inequities that may arise between DAC and non- DAC communities in California due to mining of lithium needed to produce batteries in electric vehicles (EVs). We therefore will model the California EV market with two consumer groups: DAC and non-DAC.
+• Initially, there is no intervention in the EV market.
+• The current EV price (without any intervention) is $50,000 per vehicle.
+• The marginal cost of producing an EV is linear and has a price-intercept of 0. For the purposes of this exercise, you can assume that California is self-contained in supply and demand (you don’t need to worry about global EV or mining markets). This is of course unrealistic, but note there have been large efforts by the Biden Administration to create a domestic battery supply chain, making the tradeoffs analyzed here highly policy relevant.
+
+#### Part 1
+The data set HW3 data.csv provides price (in $) and quantity (in number of EVs) estimates of demand per year for both DAC and non-DAC groups. Run linear regressions (with an intercept) to estimate the demand curves for DAC and non-DAC consumers. What are 2-3 reasons you can think that may explain the differences in demand you estimate?
+dac have lower demand because of lower income, etc. elasticity. dac is more price-sensitive, 
+```{r}
+#load in data 
+ev_raw = read_csv(here("a3/HW3_data.csv")) 
+
+#clean names and pivot longer
+ev_df = ev_raw %>% 
+  janitor::clean_names() %>% 
+  rename('p'= 1, 'dac' = 2,'non_dac' = 3) %>% 
+  pivot_longer(cols = dac:non_dac, names_to = "community", values_to = "q")
+
+#run linear regression on raw data and save model's coefficients and intercept for each community
+models = ev_df %>% 
+  group_by(community) %>% 
+  nest() %>% 
+  mutate(reg = purrr::map(.x = data, ~lm(p~q, data = .x)), #create regression column
+         coeff = map_dbl(reg, ~ coefficients(.x)["q"]), #create column w/ lm coefficients
+         int = map_dbl(reg, ~ coefficients(.x)["(Intercept)"])) %>%  #create column w/ lm intercept
+  select(-c(data,reg)) #only select columns of interest
+
+#add coefficients for each community slope to the ev df for plotting purposes
+ev_df = ev_df %>% 
+  mutate(coeff = case_when(
+    community == 'dac' ~ models$coeff[models$community == 'dac'],
+    community == 'non_dac' ~ models$coeff[models$community == 'non_dac']))
+
+```
+
+```{r}
+#plot demand estimates and lm curves
+plot_1 = 
+  ggplot(ev_df, aes(x = q, y = p, color = community)) +
+  geom_point(size = 2) + 
+  geom_abline(slope = models$coeff[models$community == 'dac'], intercept = models$int[models$community == 'dac']) +
+  geom_abline(slope = models$coeff[models$community == 'non_dac'], intercept = models$int[models$community == 'non_dac']) +
+  scale_color_manual(values= wes_palette("GrandBudapest1", n = 2)) +
+  labs(x = "Quantity (EVs)", y =  "Price ($/EV)", color = "Community", title = "Demand for Electric Vehicles (EVs)") +
+  theme_minimal() +
+  theme()
+
+plot_1
+
+```
+
+
+#### Part 2
+One kilogram (kg) of lithium is estimated to cause $300 dollars worth of damage in health costs to local communities living near mines. Each EV requires a lithium ion battery containing 63kg of lithium. Assuming there are no other externalities caused by EV production, what is the marginal externality cost per EV produced?
+
+```{r}
+li_mc = 300 #marginal cost of 1 kg of lithium mined for batteries
+n_li = 63 #kg of lithium used in one EV
+
+ev_MEC = li_mc*n_li 
+
+```
+
+If the marginal externality cost of 1 kg of lithium is $300 and 63 kg of lithium are used during the production of one EV, then the marginal externality cost per EV produced is 
+$`r ev_MEC`. 
+
+#### Part 3 Traditional Market 
+What is the aggregate annual demand curve for EVs? What is the supply curve for EVs? What is the “benefit” to consumers under the status quo? What is the “benefit” to producers under the status quo? What is the environmental cost under the status quo?
+
+```{r}
+#define model outputs for ease of use
+#slopes
+dac_slope = models$coeff[models$community == 'dac']
+non_slope = models$coeff[models$community == 'non_dac']
+#intercepts
+dac_int = models$int[models$community == 'dac']
+non_int = models$int[models$community == 'non_dac']
+```
+a) Aggregate annual demand curve for EVs
+**think I messed up the math in this section, so parts are incorrect atm**
+
+For DAC communities, the demand curve for EVs is given by P = `r dac_int` + `r dac_slope`*Q. 
+Rearranged, the demand curve is Q = (`r dac_int` - P)/ `r dac_slope`.
+
+For non-DAC communities, the demand curve for EVs is given by P = `r non_int` + `r non_slope`*Q. 
+Rearranged, the demand curve is Q = (`r non_int` - P)/ `r non_slope`.
+
+The aggregate demand curve for EVs is therefore Q = (`r dac_int` - P)/ `r dac_slope` + (`r non_int` - P)/ `r non_slope`, which is equal to Q = 75543.03 - 0.5174292*P.
+Rearranged, the aggregate demand curve is P = 145996.8 - 1.932632*Q.
+
+```{r}
+#**think I messed up the math in this section, so parts are incorrect atm**
+#define aggregate demand function to solve for Q
+agg_d_Q = function(P){
+  Q = 75543.03 - 0.5174292*P
+  #Q = 274889.1-0.5174291*P
+  return(Q)
+}
+
+#define aggregate demand function to solve for P
+agg_d_P = function(Q){
+  P = 145996.8 - 1.932632*Q
+  #P = ((274889.1 - Q)/0.5174291)
+  return(P)
+}
+
+#find eq Q based on known eq P
+P_eq = 50000
+Q_eq = agg_d_Q(P_eq)
+
+#calculate MPC slope based on rise/ run between (0,0) and (Q_eq, P_eq)
+MPC_slope = P_eq/Q_eq
+
+```
+
+b) Supply curve for EVs is given by P = `r MPC_slope`*Q. 
+```{r}
+#define marginal private cost curve to solve for P
+MPC_P = function(Q){
+  P = MPC_slope*Q
+  return(P)
+}
+
+#find consumer surplus by calculating total area under agg demand curve - eq rectangle
+CS = integral(f = agg_d_P, xmin = 0, xmax = Q_eq) - (P_eq*Q_eq)
+
+```
+
+c) The “benefit” to consumers under the status quo, also known as the consumer surplus, is `r CS`.
+```{r}
+#find producer surplus by calculating total area under supply curve
+PS = integral(f = MPC_P, xmin = 0, xmax = Q_eq)
+
+```
+
+d) The “benefit” to producers under the status quo, also known as the producer surplus, is `r PS`.
+```{r}
+#define marginal social  cost curve to solve for P
+MSC_P = function(Q){
+  P = ev_MEC + MPC_slope*Q
+  return(P)
+}
+
+#set MSC equal to agg demand curve and solve for socially optimal Q (done by hand)
+Q_so = 43241.32
+
+#calculate socially optimal P by plugging Q so into MSC equation
+P_so = MSC_P(Q_so)
+
+TC_env= ev_MEC*Q_so
+```
+e) The environmental cost under the status quo is `r TC_env`
+
+#### Part 4:
+How is the current consumer benefit divided between DAC and non-DAC consumers?
+```{r}
+#define DAC demand to solve for P
+dac_d_P = function(Q){
+  P = dac_int + dac_slope*Q 
+  return(P)
+}
+
+#define non-DAC demand to solve for P
+non_d_P = function(Q){
+  P = non_int + non_slope*Q
+  return(P)
+}
+
+#define DAC demand to solve for Q
+dac_d_Q = function(P){
+  Q = (dac_int - P)/(-dac_slope)
+  return(Q)
+}
+
+#define non-DAC demand to solve for Q
+non_d_Q = function(P){
+  Q = (non_int - P)/(-non_slope)
+  return(Q)
+}
+
+#calculate quantity of EVs each community demands at equilibrium
+Q_eq_dac = dac_d_Q(P_eq) 
+Q_eq_non = non_d_Q(P_eq) 
+
+#find consumer surplus for each community
+dac_CS = (integral(f = dac_d_P , xmin = 0, xmax = Q_eq_dac) - (Q_eq_dac*P_eq))
+non_CS = (integral(f = non_d_P , xmin = 0, xmax = Q_eq_non) - (Q_eq_non*P_eq))
+
+#check that this is equal to the total area under the aggregate demand curve
+print(CS == (dac_CS + non_CS)) #yes, true
+
+#calculate the difference in CS between communities
+diff_CS = non_CS-dac_CS
+
+#calculate the percent of the total CS that each community receives
+dac_perc_CS = round((dac_CS/(dac_CS + non_CS))*100)
+non_perc_CS = round((non_CS/(dac_CS + non_CS))*100)
+
+```
+Non-DAC receive `r non_perc_CS`% of the current consumer benefits, while DAC only receive `r dac_perc_CS`% of the current consumer benefits. The total consumer surplus is $`r CS`.
+
+#### Part 5
+Derive the optimal EV tax (in $ per vehicle) to internalize the lithium mining externality. Noting that recent research has shown that DACs are far more likely to contain mining activity, assume that the mining externality is borne entirely by the DAC group. What would be the effects of this tax on:
+(a) The amount of EVs produced and consumed 
+(b) The price of EVs
+(c) Overall welfare of non-DAC consumers 
+(d) Overall welfare of DAC consumers
+(e) EV producers
+(f) Total environmental damage
+(g) Total tax revenue generated
+```{r}
+#define socially optimal tax
+tax_so = ev_MEC
+```
+The socially optimal tax is equivalent to the marginal externality cost (MEC) of lithium mining and is `r tax_so`.
+```{r}
+#find the quantity difference between market equilibrium and socially optimal equilibrium 
+Q_diff = Q_eq - Q_so
+
+#find the quantity difference between market equilibrium and socially optimal equilibrium 
+P_diff = P_eq - P_so
+```
+The 
+
+```{r}
+#define function to calculate loss in CS
+compute_CS_loss = function(P_so, Q_so, P_eq, Q_eq){
+  #for box A
+  A_height = P_so - P_eq
+  A_length = Q_so
+  A_area = A_height*A_length
+  
+  #for triangle B
+  B_height = P_so - P_eq
+  B_length = Q_eq - Q_so
+  B_area = 0.5*(B_height*B_length)
+  
+  #add areas
+  CS_loss = A_area + B_area
+  return(CS_loss)
+}
+
+#c) loss of CS/ change in welfare to nonDAC
+#d) loss/change in CS to DAC. 
+#at eq price P_eq = $50,000, 
+#oops, already defined these above, can remove
+Q_eq_dac = dac_d_Q(P_eq)
+Q_eq_non = non_d_Q(P_eq)
+
+#at socially optimal price, P_so = $62,427
+Q_so_dac = dac_d_Q(P_eq)
+Q_so_non = non_d_Q(P_eq)
+
+#calculate cs loss to each community group
+dac_CS_loss = compute_CS_loss(P_so, Q_so_dac, P_eq, Q_eq_dac)
+non_CS_loss = compute_CS_loss(P_so, Q_so_non, P_eq, Q_eq_non)
+
+```
+`r dac_CS_loss`
+`r non_CS_loss`
+
+```{r}
+# (e) EV producers
+#define function to calculate loss in PS
+compute_PS_loss = function(P_mpc, Q_so, P_eq, Q_eq){
+  #for triangle C
+  C_height = P_eq - P_mpc
+  C_length = Q_eq - Q_so
+  C_area = 0.5*(C_height*C_length)
+  
+  #for box D
+  D_height = P_eq - P_mpc
+  D_length = Q_so
+  D_area = D_height*D_length
+  
+  #add areas
+  PS_loss = C_area + D_area
+  return(PS_loss)
+}
+#define MPC price at Q_so
+P_mpc_dac = MPC_P(Q_so_dac)
+P_mpc_non = MPC_P(Q_so_dac)
+
+#calculate cs loss to each community group
+dac_PS_loss = compute_PS_loss(P_mpc_dac, Q_so_dac, P_eq, Q_eq_dac)
+non_PS_loss = compute_PS_loss(P_mpc_non, Q_so_non, P_eq, Q_eq_non)
+
+# (f) Total environmental damage #f) effect on env damage is the tax 
+print(tax_so == ev_MEC)
+
+# (g) Total tax revenue generated
+TB_tax = Q_so*tax_so
+```
+
