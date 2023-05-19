@@ -598,15 +598,8 @@ MSC_P = function(Q){
 #find producer surplus by calculating total area under supply curve
 PS = integral(f = MPC_P, xmin = 0, xmax = Q_eq)
 
-
-#calculate socially optimal P by adding so tax to previous P eq
-P_so = P_eq + ev_MEC
-
-#then solve for Q by plugging into agg demand curve
-Q_so = agg_d_Q(P_so)
-
 #find total environmental damage
-TC_env = ev_MEC*Q_so</code></pre>
+TC_env = ev_MEC*Q_eq</code></pre>
 <ol style="list-style-type: lower-alpha">
 <li>Aggregate annual demand curve for EVs</li>
 </ol>
@@ -627,7 +620,7 @@ the consumer surplus, is 2.4749129^{9}.</p></li>
 <li><p>The “benefit” to producers under the status quo, also known as
 the producer surplus, is 1.2417892^{9}.</p></li>
 <li><p>The total environmental cost under the status quo is
-7.5396178^{8}</p></li>
+9.3879265^{8}</p></li>
 </ol>
 </div>
 <div id="question-4" class="section level2">
@@ -640,12 +633,13 @@ non_CS = compute_CS(P = P_eq, int = non_int, non_slope)
 dac_perc_CS = round((dac_CS/(dac_CS + non_CS))*100)
 non_perc_CS = round((non_CS/(dac_CS + non_CS))*100)
 
-#make a table for results
+#show results in a table
 names = c(&quot;DAC&quot;, &quot;Non-DAC&quot;, &quot;Total&quot;)
 cs = c(round(dac_CS), round(non_CS), round(CS))
 perc = c(&quot;14%&quot;, &quot;86%&quot;, &quot;100%&quot;)
-table_1 = cbind(names, cs, perc)</code></pre>
-<pre class="r"><code>kable(table_1, format = &quot;markdown&quot;, caption = &quot;Table 1: Breakdown of consumer benefits in the traditional market&quot;, col.names = c(&quot;Community&quot;, &quot;Consumer Benefit ($)&quot;, &quot;% Total&quot;))</code></pre>
+table_1 = cbind(names, cs, perc)
+
+kable(table_1, format = &quot;markdown&quot;, caption = &quot;Table 1: Breakdown of consumer benefits in the traditional market&quot;, col.names = c(&quot;Community&quot;, &quot;Consumer Benefit ($)&quot;, &quot;% Total&quot;))</code></pre>
 <table>
 <caption>Table 1: Breakdown of consumer benefits in the traditional
 market</caption>
@@ -683,6 +677,12 @@ total consumer surplus is $2.4749129^{9}.</p>
 <pre class="r"><code>#define socially optimal tax
 tax_so = ev_MEC
 
+#calculate socially optimal P by adding so tax to previous P eq
+P_so = P_eq + ev_MEC
+
+#then solve for Q by plugging into agg demand curve
+Q_so = agg_d_Q(P_so)
+
 #find the quantity difference between market equilibrium and socially optimal equilibrium 
 Q_diff = Q_eq - Q_so
 
@@ -704,7 +704,6 @@ TW_dac_so = compute_CS(P_so, dac_int, dac_slope) - TC_env
 #calculate the producer surplus as the area under the supply curve - total environmental damage
 PS_so = integral(f = MSC_P, xmin = 0, xmax = Q_so) - TC_env
 PS_diff = PS - PS_so
-
 
 #show results in a table
 table_2 = bind_cols(&quot;Variable&quot; = c(&quot;Price&quot;, &quot;Quantity&quot;, &quot;Non-DAC Welfare&quot;, &quot;DAC Welfare&quot;, &quot;Producer Surplus&quot;, &quot;Total Environmental Damage&quot;, &quot;Total Tax Revenue&quot;),

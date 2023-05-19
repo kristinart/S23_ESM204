@@ -159,15 +159,8 @@ MSC_P = function(Q){
 #find producer surplus by calculating total area under supply curve
 PS = integral(f = MPC_P, xmin = 0, xmax = Q_eq)
 
-
-#calculate socially optimal P by adding so tax to previous P eq
-P_so = P_eq + ev_MEC
-
-#then solve for Q by plugging into agg demand curve
-Q_so = agg_d_Q(P_so)
-
 #find total environmental damage
-TC_env = ev_MEC*Q_so
+TC_env = ev_MEC*Q_eq
 ```
 
 a) Aggregate annual demand curve for EVs
@@ -200,14 +193,12 @@ non_CS = compute_CS(P = P_eq, int = non_int, non_slope)
 dac_perc_CS = round((dac_CS/(dac_CS + non_CS))*100)
 non_perc_CS = round((non_CS/(dac_CS + non_CS))*100)
 
-#make a table for results
+#show results in a table
 names = c("DAC", "Non-DAC", "Total")
 cs = c(round(dac_CS), round(non_CS), round(CS))
 perc = c("14%", "86%", "100%")
 table_1 = cbind(names, cs, perc)
-```
 
-```{r}
 kable(table_1, format = "markdown", caption = "Table 1: Breakdown of consumer benefits in the traditional market", col.names = c("Community", "Consumer Benefit ($)", "% Total"))
 
 ```
@@ -219,6 +210,12 @@ Non-DAC consumers receive `r non_perc_CS`% of the current consumer benefits, whi
 ```{r}
 #define socially optimal tax
 tax_so = ev_MEC
+
+#calculate socially optimal P by adding so tax to previous P eq
+P_so = P_eq + ev_MEC
+
+#then solve for Q by plugging into agg demand curve
+Q_so = agg_d_Q(P_so)
 
 #find the quantity difference between market equilibrium and socially optimal equilibrium 
 Q_diff = Q_eq - Q_so
@@ -241,7 +238,6 @@ TW_dac_so = compute_CS(P_so, dac_int, dac_slope) - TC_env
 #calculate the producer surplus as the area under the supply curve - total environmental damage
 PS_so = integral(f = MSC_P, xmin = 0, xmax = Q_so) - TC_env
 PS_diff = PS - PS_so
-
 
 #show results in a table
 table_2 = bind_cols("Variable" = c("Price", "Quantity", "Non-DAC Welfare", "DAC Welfare", "Producer Surplus", "Total Environmental Damage", "Total Tax Revenue"),
