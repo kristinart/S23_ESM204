@@ -2,7 +2,9 @@
 title: "ESM204_a3_Art_Somhegyi_Berkovitz"
 author: "Olivia Somhegyi, Simone Berkovitz, and Kristin Art"
 date: "2023-05-16"
-output: html_document
+output:
+  html_document:
+    code_folding: hide
 ---
 
 ```{r setup, echo = TRUE, warning = FALSE, message = FALSE}
@@ -20,15 +22,13 @@ library(equatiomatic)
 ```
 ### Distributional consequences of the clean energy transition
 
-Use the following set of facts:
-• We are concerned about the environmental inequities that may arise between DAC and non- DAC communities in California due to mining of lithium needed to produce batteries in electric vehicles (EVs). We therefore will model the California EV market with two consumer groups: DAC and non-DAC.
-• Initially, there is no intervention in the EV market.
-• The current EV price (without any intervention) is $50,000 per vehicle.
-• The marginal cost of producing an EV is linear and has a price-intercept of 0. For the purposes of this exercise, you can assume that California is self-contained in supply and demand (you don’t need to worry about global EV or mining markets). This is of course unrealistic, but note there have been large efforts by the Biden Administration to create a domestic battery supply chain, making the tradeoffs analyzed here highly policy relevant.
+# {.tabset}
 
-#### Part 1
-The data set HW3 data.csv provides price (in $) and quantity (in number of EVs) estimates of demand per year for both DAC and non-DAC groups. Run linear regressions (with an intercept) to estimate the demand curves for DAC and non-DAC consumers. What are 2-3 reasons you can think that may explain the differences in demand you estimate?
-dac have lower demand because of lower income, etc. elasticity. dac is more price-sensitive, 
+
+## Question 1
+
+DAC has a lower demand for EVs compared to non-DAC consumers because they tend to have a lower income and lower marginal willingness-to-pay for EVs. DAC consumer demand is more inelastic than non-DAC consumers, meaning the change in price influences change in demand less for DAC consumers than non-DAC consumers. DAC might also have lower demand due to  less access to EV charging infrastructure.
+
 ```{r}
 #load in data 
 ev_raw = read_csv(here("a3/HW3_data.csv")) 
@@ -79,7 +79,7 @@ plot_1
 
 ```
 
-#### Part 2
+## Question 2
 ```{r}
 li_mc = 300 #marginal cost of 1 kg of lithium mined for batteries
 n_li = 63 #kg of lithium used in one EV
@@ -91,8 +91,8 @@ ev_MEC = li_mc*n_li
 If the marginal externality cost of 1 kg of lithium is $300 and 63 kg of lithium are used during the production of one EV, then the marginal externality cost per EV produced is 
 $`r ev_MEC`. 
 
-#### Part 3 Traditional Market 
-What is the aggregate annual demand curve for EVs? What is the supply curve for EVs? What is the “benefit” to consumers under the status quo? What is the “benefit” to producers under the status quo? What is the environmental cost under the status quo?
+## Question 3
+
 ```{r}
 #define demand functions
 #define generic demand function to calculate Q 
@@ -189,8 +189,8 @@ d) The “benefit” to producers under the status quo, also known as the produc
 
 e) The total environmental cost under the status quo is `r TC_env`
 
-#### Part 4:
-How is the current consumer benefit divided between DAC and non-DAC consumers?
+## Question 4
+
 ```{r}
 #find consumer surplus for each community
 dac_CS = compute_CS(P = P_eq, int = dac_int, dac_slope)
@@ -212,17 +212,9 @@ kable(table_1, format = "markdown", caption = "Table 1: Breakdown of consumer be
 
 ```
 
-Non-DAC receive `r non_perc_CS`% of the current consumer benefits, while DAC only receive `r dac_perc_CS`% of the current consumer benefits. The total consumer surplus is $`r CS`.
+Non-DAC consumers receive `r non_perc_CS`% of the current consumer benefits, while DAC consumers only receive `r dac_perc_CS`% of the current consumer benefits. The total consumer surplus is $`r CS`.
 
-#### Part 5
-Derive the optimal EV tax (in $ per vehicle) to internalize the lithium mining externality. Noting that recent research has shown that DACs are far more likely to contain mining activity, assume that the mining externality is borne entirely by the DAC group. What would be the effects of this tax on:
-(a) The amount of EVs produced and consumed 
-(b) The price of EVs
-(c) Overall welfare of non-DAC consumers 
-(d) Overall welfare of DAC consumers
-(e) EV producers
-(f) Total environmental damage
-(g) Total tax revenue generated
+## Question 5
 
 ```{r}
 #define socially optimal tax
@@ -274,12 +266,7 @@ f) The total environmental damage is `r TC_env`.
 
 g) The total tax revenue generated is `r TB_tax`, which is equivalent to the total environmental damage.
 
-#### Part 6
-Now, assume that all revenue from the EV tax will be redistributed to the consumers in proportion to their pre-tax consumption. For example, if 80% of the EVs were consumed by non-DAC consumers, then they get 80% of the tax revenue. Additionally, consider that emerging scientific evidence suggests the true environmental damages from lithium mining may be much higher than $300. 
-For a range of values of external costs per kg of lithium ($350, $400, $450, and $500 per kg), calculate the effects of an EV tax on:1
-(a) Overall welfare of non-DAC consumers 
-(b) Overall welfare of DAC consumers
-(c) EV producers
+## Question 6
 
 ```{r}
 #calculate n of EVs consumed by each community  in traditional market
@@ -381,4 +368,15 @@ welfare_results = map_dfr(li_mec, summarize_welfare)
 kable(welfare_results, format = "markdown", caption = "Table 3: Total welfare for three groups based on the given scenario", col.names = c("Lithium MEC", "Non-DAC Total Welfare", "DAC Total Welfare", "Producers Total Welfare"))
 ```
 
-#### Part 7
+## Question 7
+
+(a) The presence of climate change damages from gasoline cars decreases the optimal EV tax in California because EVs offset climate change impacts. By decreasing the optimal EV tax in California, EV demand will increase, which will lead to a reduction in gasoline cars and a reduction in climate change damages.
+
+(b) Non-DAC consumers would favor the tax because it would be a lower tax on EVs overall. Non-DAC consumers have a higher demand for EVs, therefore are benefitting from the lower tax because they are paying less. Additionally, they will not experience the direct environmental impacts from increased lithium mining due to the increased demand for EVs.
+
+(c) DAC consumers would not be in favor of the tax because it would lead to more lithium mining. DAC consumers have a lower demand for EVs and they experience the direct environmental impacts from mining more than the impacts from climate change. Thus, if there is more lithium mining occurring from a lower tax and an increased overall demand for EVs, DAC communities would bear the direct environmental impacts from the increased lithium mining.
+
+
+
+
+
