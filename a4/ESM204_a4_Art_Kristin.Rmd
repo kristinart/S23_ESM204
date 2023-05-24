@@ -32,14 +32,14 @@ warming_raw = read_csv(here("a4/warming.csv"))
 ## Question 1
 Using damages.csv, estimate a quadratic damage function relating the dollar value of damages to the change in global mean temperature. Omit an intercept term; damages by construction must equal zero when there is no climate change. Plot your estimated damage function, overlaid with a scatterplot of the underlying data.
 
-```{r}
+```{r plot_1, out.width="75%", fig.align = 'center', fig.cap = "**Figure 1:** Estimated annual total damages from climate change at different levels of global mean temperature warming."}
 #exploratory plot
 plot_0 = ggplot(damages_raw, aes(x = warming, y = damages)) +
   geom_point(shape = 1, color = 'coral3')+
   labs(x = "Warming", y = "Damages")+
   theme_minimal()
 
-plot_0
+#plot_0
 
 #add a warming squared value to df
 damages_df = damages_raw %>% 
@@ -49,28 +49,36 @@ damages_df = damages_raw %>%
 qm = lm(damages ~ 0 + warming + warming2, data = damages_df)
 summary(qm)
 
-#add qm to plot
+#add qm to plot using geom_smooth (option 1)
 plot_1 = plot_0 +
   geom_smooth(method = "lm", formula = y ~ x + I(x^2), se = FALSE, color = 'black')
 
 plot_1
 
+#add qm to plot using predicted values (option 2)
 #create sample data to visualize model
-# warming_samples = seq(from = 0, to = 10)
-# damages_predict = predict(qm, list(warming = warming_samples, warming2 = warming_samples^2))
-# 
-# ggplot()+
-#   geom_line(aes(x = warming_samples, y = damages_predict))
+warming_samples = as.numeric(seq(from = 0, to = 10))
+damages_predict = as.numeric(predict(qm, list(warming = warming_samples, warming2 = warming_samples^2)))
+
+#combine into one df 
+damage_predictions_df = cbind(warming_samples, damages_predict) %>% 
+  as.data.frame()
+
+#add to plot
+plot_1 = plot_0 +
+  geom_line(data = damage_predictions_df, aes(x = warming_samples, y = damages_predict))
+
+#plot_1
 
 ```
 
 
 ## Question 2
 Use warming.csv and your estimated damage function to predict damages in each year under the baseline climate trajectory and under the pulse scenario. Make four plots: (1) damages over time without the pulse, (2) damages over time with the pulse, (3) the difference in damages over time that arises from the pulse, and (4) the difference in damages over time from the pulse per ton of CO2 (you can assume that each ton of the pulse causes the same amount of damage).
-```{r}
+```{r plot_2, out.width="75%", fig.align = 'center', fig.cap = "**Figure 2:** Estimated annual total damages from climate change between 2021-2022 based on different global mean climate warming trajectories. A) Damages from the baseline future climate warming trajectory, B) damages from the climate warming trajectory that includes a one-time, 35 billion ton pulse of carbon to the atmosphere today, C) the difference in damages between the baseline and pulse trajectories, D) the difference in damages between the baseline and pulse trajectories per ton of CO2."}
 #define function for damages based on qm
 compute_damages = function(warming){
-  
+  #damage = 0 + a*warming + b*warming^2
   damage = 0 + (qm$coefficients['warming'])*warming + (qm$coefficients['warming2'])*(warming^2)
   
   return(damage)
@@ -78,21 +86,22 @@ compute_damages = function(warming){
 
 #apply damages function and calculate the things
 warming_df = warming_raw %>% 
-  mutate(est_damage_bl = purrr::map_dbl(.x = warming_baseline, .f = compute_damages),
-         est_damage_p = purrr::map_dbl(.x = warming_pulse, .f = compute_damages),
-         diff_damages = est_damage_p - est_damage_bl,
-         diff_per_ton = diff_damages/35000000000,
-         year = as.factor(year))
+  mutate(est_damage_bl = purrr::map_dbl(.x = warming_baseline, .f = compute_damages), #compute damages for baseline scenario
+         est_damage_p = purrr::map_dbl(.x = warming_pulse, .f = compute_damages), #compute damages for pulse scenario
+         diff_damages = est_damage_p - est_damage_bl, #compute difference between above two 
+         diff_per_ton = diff_damages/35000000000, #compute difference per ton
+         year = as.factor(year)) #make year a factor for plotting
 
 #pivot longer
 warming_df_longer = warming_df %>% 
-  select(-c(warming_baseline, warming_pulse)) %>% 
-  pivot_longer(cols = "est_damage_bl":"diff_per_ton", names_to = "variable", values_to = "damage")
+  select(-c(warming_baseline, warming_pulse)) %>% #remove columns we don't need
+  pivot_longer(cols = "est_damage_bl":"diff_per_ton", names_to = "variable", values_to = "damage") %>% 
+  mutate(across(variable, factor, levels = c("est_damage_bl", "est_damage_p", "diff_damages", "diff_per_ton"))) #make variable column a factor with levels to control order of subplots below
 
 #plot estimates
 plot_2 = ggplot(warming_df_longer, aes(x = year)) +
   geom_point(aes(y = damage), color = "coral3") +
-  facet_wrap(~ variable, scales = "free_y", nrow = 2) +
+  facet_wrap(~ variable, scales = "free_y", nrow = 2, labeller = as_labeller(c(est_damage_bl = 'A) Baseline Trajectory', est_damage_p='B) Pulse Trajectory', diff_damages = "C) Difference", diff_per_ton ='D) Difference per ton CO2'))) +
   labs(x = "Year", y = "Damage") +
   theme_minimal()
 
@@ -103,13 +112,13 @@ plot_2
 ## Question 3
 The SCC is defined as the present discounted value of the stream of future damages caused by one additional ton of CO2.*1* The Obama Administration used a discount rate of 3% to discount damages. The recent EPA update uses a discount rate that changes over time, but starts at 2%. Calculate and make a plot of the SCC (y-axis) against the discount rate (x-axis) for discount rates ranging from 1% to 8%. *1* For the purposes of this homework, you may ignore damages after the year 2100.
 
-```{r}
+```{r plot_3, out.width="75%", fig.align = 'center', fig.cap = "**Figure 3:** Estimated social cost of carbon (SCC) as a function of discount rate."}
 #define function to calculate SSC
 calculate_SSC = function(r, row_n, col_n){
-  #initialize a starting value
+  #initialize a starting value for cost
   TC = 0
   
-  #run for loop for years between 2021-2100
+  #run for loop and add present value damages
   for(i in row_n){
     TC = TC + (warming_df[i, col_n] / (1 + r)^2)
   }
@@ -122,7 +131,7 @@ calculate_SSC = function(r, row_n, col_n){
 r = seq(from = 1, to = 8, by = 0.25)
 
 #apply function to discount rates
-SCC = map(.x = r, row_n = nrow(warming_df), col_n = 7, .f = calculate_SSC) %>% 
+SCC = map(.x = r, row_n = nrow(warming_df), col_n = 7, .f = calculate_SSC) %>%
   unlist() %>% 
   as.data.frame() %>% 
   rename("SCC" = 1)
@@ -142,7 +151,7 @@ Higher discount rates result in a lower SCC measurement.
 ## Question 4
 The National Academies of Sciences, Engineering, and Medicine advised the government in a 2017 report to use the Ramsey Rule when discounting within the SCC calculation, a recommendation the EPA considered. Recall the Ramsey Rule: r = ρ + ηg
 Using ρ = 0.001, η = 2, and g = 0.01, what is the SCC? Locate this point on your graph from above.
-```{r}
+```{r plot_4, out.width="75%", fig.align = 'center', fig.cap = "**Figure 4:** Estimated social cost of carbon (SCC) as a function of discount rate. Red dot represents the discount rate and SSC calculated by the Ramsey Rule, which was recommended by the National Academies of Sciences, Engineering, and Medicine."}
 #define variables
 q = 0.001
 n = 2
@@ -154,7 +163,8 @@ rr_SSC = as.numeric(calculate_SSC(rr, row_n = nrow(warming_df), col_n = 7))
 
 #add to plot
 plot_4 = plot_3 +
-  geom_point(aes(x = rr, y = rr_SSC), color = 'coral3', size = 3)
+  geom_point(aes(x = rr, y = rr_SSC), color = 'coral3', size = 4) +
+  geom_text(aes(x = rr, y = rr_SSC), label = "(2.1, 0.82)", hjust = -0.2, vjust = 0.2)
 
 plot_4
 ```
@@ -229,10 +239,14 @@ EPV_diff
 ```
 
 ```{r}
+EPV_results = cbind(EPV_A, EPV_B) %>% 
+  as.data.frame()
 
+table_1 = kable(EPV_results, format = "markdown", caption = "Table 1: Expected Present Value of damages up to 2100 under Policy A and Policy B.")
+
+table_1
 ```
 
-The expected present value (EPV) of damages up to 2100 under Policy A is `r EPV_A` while the expected present value (EPV) of damages up to 2100 under Policy B is `r EPV_B`. Policy B could cost up to `r EPV_diff` and still make economic sense to pursue over Policy A if Policy A cost $0 to implement and the society is risk-neutral. If society were risk averse, Policy B would be more attractive because the outcome cost is certain (due to the 100% probability). In Policy A however, the outcome cost is uncertain. There is a 50% chance warming will follow the baseline and result in lower costs, but there's also a 50% risk that warming will be 1.5 times higher than the baseline and cause more damage.
+The expected present value (EPV) of damages up to 2100 under Policy A is `r EPV_A` while the expected present value (EPV) of damages up to 2100 under Policy B is `r EPV_B`. Policy B could cost up to `r EPV_diff` to implement and still make economic sense to pursue over Policy A if Policy A cost $0 to implement and the society is risk-neutral. If society were risk averse, Policy B would be more attractive because the outcome cost is certain (due to the 100% probability). In Policy A however, the outcome cost is uncertain. There is a 50% chance warming will follow the baseline and result in lower costs, but there's also a 50% risk that warming will be 1.5 times higher than the baseline and cause more damage.
 
-`r round(EPV_A, 0)`
 
