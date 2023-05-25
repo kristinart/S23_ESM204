@@ -17,7 +17,10 @@ library(ggforce)
 library(cowplot)
 library(patchwork)
 ```
-### Calculating the social cost of carbon (SCC) and policy choice under uncertainty
+### Calculating the social cost of carbon and policy choice under uncertainty
+
+In this exercise, we used modeled estimates of future damages caused by global warming to derive the social cost of carbon (SCC), investigated how discounting influences its calculation, and assessed how uncertainty influences climate policy choices.
+
 ```{r}
 #load in data 
 damages_raw = read_csv(here("a4/damages.csv")) 
@@ -28,7 +31,7 @@ warming_raw = read_csv(here("a4/warming.csv"))
 
 
 ## Question 1
-Using damages.csv, estimate a quadratic damage function relating the dollar value of damages to the change in global mean temperature. Omit an intercept term; damages by construction must equal zero when there is no climate change. Plot your estimated damage function, overlaid with a scatterplot of the underlying data.
+First, we estimate and plot a quadratic damage function relating the dollar value of damages to the change in global mean temperature based on the modeled data (Figure 1). We omitted an intercept term since there should be no damages by construction when there is no climate change. 
 
 ```{r plot_1, out.width="75%", fig.align = 'center', fig.cap = "**Figure 1:** Estimated annual total damages from climate change at different levels of global mean temperature warming."}
 #exploratory plot
@@ -72,7 +75,8 @@ plot_1 = plot_0 +
 
 
 ## Question 2
-Use warming.csv and your estimated damage function to predict damages in each year under the baseline climate trajectory and under the pulse scenario. Make four plots: (1) damages over time without the pulse, (2) damages over time with the pulse, (3) the difference in damages over time that arises from the pulse, and (4) the difference in damages over time from the pulse per ton of CO2 (you can assume that each ton of the pulse causes the same amount of damage).
+Next, we used the estimated damage function to predict total damages in each year under two climate trajectories. The climate trajectories include a "baseline" future climate warming trajectory (in ◦C relative to the pre-industrial period) and a "pulse" trajectory that includes a one-time pulse of 35 billion tons of CO2 to the atmosphere today. Estimated annual damages in each trajectory are shown in Figure 2 alongside the difference in damages between the two scenarios over time and per ton of CO2 (Figure 2).
+
 ```{r plot_2, out.width="75%", fig.align = 'center', fig.cap = "**Figure 2:** Estimated annual total damages from climate change between 2021-2022 based on different global mean climate warming trajectories. A) Damages from the baseline future climate warming trajectory, B) damages from the climate warming trajectory that includes a one-time, 35 billion ton pulse of carbon to the atmosphere today, C) the difference in damages between the baseline and pulse trajectories, D) the difference in damages between the baseline and pulse trajectories per ton of CO2."}
 #define function for damages based on qm
 compute_damages = function(warming){
@@ -102,23 +106,26 @@ plot_2 = ggplot(warming_df_longer, aes(x = year)) +
   geom_point(aes(y = damage), color = "coral3") +
   facet_wrap(~ variable, scales = "free_y", nrow = 2, labeller = as_labeller(c(est_damage_bl = 'A) Baseline Trajectory', est_damage_p='B) Pulse Trajectory', diff_damages = "C) Difference", diff_per_ton ='D) Difference per ton CO2'))) +
   labs(x = "Year", y = "Damages ($)") +
-  theme_minimal()
+  theme_minimal()+
+  scale_x_discrete(breaks = seq(2020,2100,10))+  
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 plot_2
 ```
 
 
 ## Question 3
-The SCC is defined as the present discounted value of the stream of future damages caused by one additional ton of CO2.*1* The Obama Administration used a discount rate of 3% to discount damages. The recent EPA update uses a discount rate that changes over time, but starts at 2%. Calculate and make a plot of the SCC (y-axis) against the discount rate (x-axis) for discount rates ranging from 1% to 8%. *1* For the purposes of this homework, you may ignore damages after the year 2100.
+Here, we investigated how discounting influences the calculation of SSC, which is defined as the present discounted value of the stream of future damages caused by one additional ton of CO2. We calculated and plotted the SSC for discount rates betqween 1-8% and found that higher discount rates result in lower SCC values (Figure 3).
+
 ```{r plot_3, out.width="75%", fig.align = 'center', fig.cap = "**Figure 3:** Estimated social cost of carbon (SCC) as a function of discount rate."}
 #define function to calculate generic PV
-calculate_PV = function(range, initial_damage, r){
+calculate_PV = function(range, damages, r){
   #initialize total value
   total = 0
   
   #run for loop over specified range to calculate PV with discount 
   for (i in range){
-    total = total + initial_damage/(1 + r)^i
+    total = total + damages[warming_df$t == i]/(1 + r)^i
   }
   return(total)
 }
@@ -127,7 +134,7 @@ calculate_PV = function(range, initial_damage, r){
 r = seq(from = 0.01, to = 0.08, by = 0.001)
 
 #apply function to discount rates
-SCC = map(.x = r, initial_damage = warming_df$diff_per_ton[warming_df$t == 0], range = warming_df$t, .f = calculate_PV) %>%
+SCC = map(.x = r, damages = warming_df$diff_per_ton, range = warming_df$t, .f = calculate_PV) %>%
   unlist() %>% 
   as.data.frame() %>% 
   rename("SCC" = 1)
@@ -137,22 +144,30 @@ SCC_results = cbind(r, SCC)
 #plot results
 plot_3 = ggplot(SCC_results, aes(x = r, y = SCC))+
   geom_line(size = 1)+
-  labs(x = "Discount rate (%)", y = "SCC ($/ton)")+
+  labs(x = "Discount rate", y = "SCC ($/ton)")+
   theme_minimal()
 
 plot_3
 
 ```
-Higher discount rates result in a lower SCC measurement. 
+ 
 
 ## Question 4
-The National Academies of Sciences, Engineering, and Medicine advised the government in a 2017 report to use the Ramsey Rule when discounting within the SCC calculation, a recommendation the EPA considered. Recall the Ramsey Rule: r = ρ + ηg
-Using ρ = 0.001, η = 2, and g = 0.01, what is the SCC? Locate this point on your graph from above.
+Next, we calculate the SCC based on the Ramsey Rule, which the National Academies of Sciences, Engineering, and Medicine advised the government to use in 2017 when discounting within the SCC calculation. The Ramsey Rule is as follows:
+$$r = ρ + ηg$$
+where:
 
- ́ The “Ramsey Rule”: r = η g + δ
- ́ η: elasticity of marginal utility of consumption with respect to income (how much more does a poor person value a dollar compared to a rich person?)
- ́ δ: pure rate of time preference
- ́ g: growth rate of income over time
+- η is the elasticity of marginal utility of consumption with respect to income 
+
+- δ is the pure rate of time preference
+
+- g is the growth rate of income over time
+
+
+In this exercise, we calculate the discount rate with the following values:
+$$ρ = 0.001$$
+$$η = 2$$
+$$g = 0.01$$
  
 ```{r plot_4, out.width="75%", fig.align = 'center', fig.cap = "**Figure 4:** Estimated social cost of carbon (SCC) as a function of discount rate. Red dot represents the discount rate and SSC calculated by the Ramsey Rule, which was recommended by the National Academies of Sciences, Engineering, and Medicine."}
 #define variables
@@ -162,45 +177,47 @@ g = 0.01
 
 #calculate discount rate and resulting SSC
 rr = as.numeric((q + n*g))
-rr_SSC = as.numeric(calculate_PV(rr, initial_damage = warming_df$diff_per_ton[warming_df$t == 0], range = warming_df$t))
+rr_SCC = as.numeric(calculate_PV(rr, damages = warming_df$diff_per_ton, range = warming_df$t))
  
 #add to plot
 plot_4 = plot_3 +
-  geom_point(aes(x = rr, y = rr_SSC), color = 'coral3', size = 4) +
-  geom_text(aes(x = rr, y = rr_SSC), label = "(0.02, 23.50)", hjust = -0.2, vjust = 0.2)
+  geom_point(aes(x = rr, y = rr_SCC), color = 'coral3', size = 4) +
+  geom_text(aes(x = rr, y = rr_SCC), label = "(0.02, 144)", hjust = -0.2, vjust = 0.2)
 
 plot_4
 ```
+The discount rate calculated by the Ramsey Rule is `r rr` and the resulting SCC value is $`r rr_SCC`, which is shown in Figure 4.
+
 
 
 ## Question 5
-Now suppose there are two possible climate policies that can be pursued. Policy A is business as usual emissions, without any substantial climate change mitigation. Policy B is to take immediate and strong action on climate change. Use these facts:
-• If you undertake Policy A there are two possible outcomes. Either warming will occur as in the “baseline” (i.e. “no-pulse”) dataset above (this happens with probability 0.5) or warming each year will be 1.5 times that in the “baseline” dataset (with probability 0.5).
-• Under Policy B, warming will continue until 2050 as in the “baseline” dataset, and then will stabilize at 1.29 degrees and stay that way forever.
-• Society is risk neutral
-• Use a discount rate of 2%
-What is the expected present value of damages up to 2100 under Policy A? What is the
-expected present value of damages up to 2100 under Policy B? Suppose undertaking Policy
-A costs zero and undertaking Policy B costs X. How large could X be for it to still make economic sense to pursue Policy B instead of Policy A? Qualitatively, how would your answer change if society were risk averse?
+Lastly, we analyzed two possible climate policies that could be pursued with a discount rate of 2%. 
 
-- Policy A: Warming will either occur according to the baseline dataset at a probability of 0.5 or warming each year will be 1.5 times higher than that in the baseline dataset at a probability of 0.5
+1. Policy A would involve business as usual emissions, without any substantial climate change mitigation. If Policy A is undertaken, there are two possible outcomes. There is a 0.5 probability that warming will occur and follow the baseline trajectory and a 0.5 probability that warming each year will be 1.5 times higher than that in the baseline trajectory. 
+
+2. Policy B would involve taking immediate and strong action on climate change. If Policy B is undertaken, there is a probability of 1 that warming will continue until 2050 following the baseline trajectory and then will stabilize at 1.29 degrees and stay that way forever. 
+
 
 ```{r}
 #define discount rate of 2%
 r = 0.02
 
+#add columns to warming_df
+warming_df = warming_df %>% 
+  mutate(est_damage_1.5bl = as.numeric(1.5*est_damage_bl), #compute damages for 1.5 times baseline
+         est_damage_stable_t = as.numeric(compute_damages(warming = 1.29))) #compute damages 
+
 #define policy A variables
 p = 0.5
-coeff = 1.5
 c = 0
 
 #define function to calculate expected present value under policy A
 compute_EPV_A = function(r, coeff, c, p){
   #calculate the total cost of baseline scenario
-  total_bl = as.numeric(calculate_PV(r = r, initial_damage = warming_df$est_damage_bl[warming_df$t == 0], range = warming_df$t))
+  total_bl = as.numeric(calculate_PV(r = r, damages = warming_df$est_damage_bl, range = warming_df$t))
   
   #calculate the total cost of 1.5 times baseline scenario
-  total_1.5 = as.numeric(coeff*total_bl)
+  total_1.5 = as.numeric(calculate_PV(r = r, damages = warming_df$est_damage_1.5bl, range = warming_df$t))
   
   #add total benefits, subtract total costs, and multiply by probability 
   EPV_A = (total_bl + total_1.5 - c)*p
@@ -208,14 +225,8 @@ compute_EPV_A = function(r, coeff, c, p){
 }
 
 EPV_A = compute_EPV_A(r = r, coeff = coeff, c = c, p = p)
-
 EPV_A
 
-```
-
-- Policy B: Warming will continue until 2050 according to the baseline dataset and then stabilize at 1.29 degrees and stay that way forever. 
-
-```{r}
 #policy B: take immediate and strong action against climate change
 #define policy B variables
 p = 1
@@ -224,10 +235,10 @@ c = 0
 compute_EPV_B = function(r, c, p){
   
   #calculate the total cost of baseline scenario until year 2050
-  total_pre_2050 = as.numeric(calculate_PV(r = r, initial_damage = warming_df$est_damage_bl[warming_df$t == 0], range = seq(0, 29, 1)))
+  total_pre_2050 = as.numeric(calculate_PV(r = r, damages = warming_df$est_damage_bl, range = 0:30 ))#seq(0, 29, 1)))
   
   #calculate the total cost once temp stabilizes in 2050 
-  total_post_2050 = as.numeric(calculate_PV(r = r, initial_damage = warming_df$est_damage_bl[warming_df$year == 2050], range = seq(0, 50, 1)))
+  total_post_2050 = as.numeric(calculate_PV(r = r, damages = warming_df$est_damage_stable_t, range = 31:79)) #seq(29, 79, 1)))
   
   #add the total benefits, subtract total costs and multiply by probability
   EPV_B = (total_pre_2050 + total_post_2050 - c)*p
@@ -240,15 +251,17 @@ EPV_B = compute_EPV_B(r = r, c = c, p = p)
 EPV_B
 
 #calculate difference in damages
-EPV_diff = EPV_B - EPV_A
+EPV_diff = EPV_A - EPV_B
 EPV_diff
 
 #now include implementation cost of Policy B 
 c = EPV_diff
 EPV_B2 = compute_EPV_B(r = r, c = c, p = p)
-
+EPV_B2 = abs(EPV_B2)
+EPV_A
 #check that EPV_B with implementation cost included is equal to EPV_A with implementation cost included
-(round(EPV_B2) == round(EPV_A)) #yes, true
+round(EPV_B2) == round(EPV_A)
+(abs((round(EPV_B2))) == abs(round(EPV_A))) #yes, true
 ```
 
 ```{r}
@@ -259,18 +272,53 @@ table_1 = kable(EPV_results, format = "markdown", caption = "Table 1: Expected P
 
 table_1
 ```
+We calculated the expected present value of damages up to 2100 under both policies (Table 1). The expected present value (EPV) of damages up to 2100 under Policy A is $`r EPV_A` while the expected present value (EPV) of damages up to 2100 under Policy B is 
+$`r EPV_B`. Policy B could cost up to 
+$`r EPV_diff` to implement and still make economic sense to pursue over Policy A if Policy A cost 
+$0 to implement and the society is risk-neutral. 
 
-The expected present value (EPV) of damages up to 2100 under Policy A is `r EPV_A` while the expected present value (EPV) of damages up to 2100 under Policy B is `r EPV_B`. Policy B could cost up to `r EPV_diff` to implement and still make economic sense to pursue over Policy A if Policy A cost $0 to implement and the society is risk-neutral. If society were risk averse, Policy B would be more attractive because the outcome cost is certain (due to the 100% probability). In Policy A however, the outcome cost is uncertain. There is a 50% chance warming will follow the baseline and result in lower costs, but there's also a 50% risk that warming will be 1.5 times higher than the baseline and cause more damage.
+If society were risk averse, Policy B would be more attractive because the outcome cost is certain (due to the 100% probability). In Policy A however, the outcome cost is uncertain. There is a 50% chance warming will follow the baseline and result in lower costs, but there's also a 50% risk that warming will be 1.5 times higher than the baseline and cause more damage.
+
+NOTES BELOW THIS
 
  New concept: “expected value”
  ́ Suppose there are N possible “states of the world”
  ́ Let Bn and Cn be benefit and cost under state of the world n.  ́ Let pn be the probability of state n
 Expected Net Benefit (expected value) = p1(B1-C1) + p2(B2-C2)+...+ pN(BN-CN)
 
+We began by calculating the net present value of damages up to 2100 under both policies
+• Society is risk neutral
+• Use a discount rate of 2%
+What is the expected present value of damages up to 2100 under Policy A? What is the
+expected present value of damages up to 2100 under Policy B? Suppose undertaking Policy
+A costs zero and undertaking Policy B costs X. How large could X be for it to still make economic sense to pursue Policy B instead of Policy A? Qualitatively, how would your answer change if society were risk averse?
+
+
 ```{r plot_7, out.width="75%", fig.align = 'center', fig.cap = "**Figure 5:** Expected Utility of Policy Options for Risk Neutral and Risk Averse Societies."}
+#modify EPV_A function to give output of each potential outcome
+#define function to calculate expected present value under policy A
+compute_EPV_A2 = function(r, coeff, c, p){
+  #calculate the total cost of baseline scenario
+  total_bl = as.numeric(calculate_PV(r = r, damages = warming_df$est_damage_bl, range = warming_df$t))
+  
+  #calculate the total cost of 1.5 times baseline scenario
+  total_1.5 = as.numeric(calculate_PV(r = r, damages = warming_df$est_damage_1.5bl, range = warming_df$t))
+  
+  #add total benefits, subtract total costs, and multiply by probability 
+  EPV_A = (total_bl + total_1.5 - c)*p
+  return(list(total_bl, total_1.5, EPV_A))
+}
+
+results_A = compute_EPV_A2(r = r, coeff = coeff, c = c, p = p) %>% 
+  as.data.frame() %>% 
+  rename('total_bl' = 1, 'total_1.5' = 2, 'EPV_A' = 3)
+ 
+total_bl = as.numeric(results_A$total_bl)
+total_1.5 = as.numeric(results_A$total_bl)
+
 #graph results based on risk neutral society
-x = seq(0, 5e15, 1e15)
-y = seq(0, 5, 1)
+x = seq(0, 6e15, 1e15)
+y = seq(0, 6, 1)
 #y = seq(0, 14, 1)
 
 df = cbind(x,y) %>% 
@@ -278,9 +326,11 @@ df = cbind(x,y) %>%
 
 plot_5 = ggplot(df, aes(x = x, y = y))+
   geom_line()+
+  geom_point(aes(x = total_bl, y = total_bl/1e15), color = 'coral3', size = 4) +
+  geom_point(aes(x = total_1.5, y = total_1.5/1e15), color = 'coral3', size = 4) +
   geom_point(aes(x = EPV_A, y = EPV_A/1e15), color = 'coral3', size = 4) +
   geom_point(aes(x = EPV_B, y = EPV_B/1e15), color = 'coral3', size = 4) +
-  geom_text(aes(x = EPV_A, y = EPV_A/1e15), label = "(EPV(A), EU(A))", hjust = -0.2, vjust = 0.2)+
+  #geom_text(aes(x = EPV_A/2, y = EPV_A/2e15), label = "(EPV(A), EU(A))", hjust = -0.2, vjust = 0.2)+
   geom_text(aes(x = EPV_B, y = EPV_B/1e15), label = "(EPV(B), EU(B))", hjust = -0.2, vjust = 0.2)+
   labs(x = "EPV ($)", y = "EU", title = "Expected Utility of Policy Options for Risk Neutral Utility Curve")+
   theme_minimal()
@@ -295,9 +345,11 @@ sqrt_fun <- function(x) {
 #plot risk averse
 plot_6 = ggplot(df, aes(x = x, y = y)) +
   geom_function(fun = sqrt_fun)+
+  geom_point(aes(x = total_bl, y = sqrt_fun(total_bl)), color = 'coral3', size = 4) +
+  geom_point(aes(x = total_1.5, y = sqrt_fun(total_1.5)), color = 'coral3', size = 4) +
   geom_point(aes(x = EPV_A, y = sqrt_fun(EPV_A)), color = 'coral3', size = 4) +
   geom_point(aes(x = EPV_B, y = sqrt_fun(EPV_B)), color = 'coral3', size = 4) +
-  geom_text(aes(x = EPV_A, y = sqrt_fun(EPV_A)), label = "(EPV(A), EU(A))", hjust = -0.2, vjust = 0.2)+
+  #geom_text(aes(x = EPV_A, y = sqrt_fun(EPV_A)), label = "(EPV(A), EU(A))", hjust = -0.2, vjust = 0.2)+
   geom_text(aes(x = EPV_B, y = sqrt_fun(EPV_B)), label = "(EPV(B), EU(B))", hjust = -0.2, vjust = 0.2)+
   labs(x = "EPV ($)", y = "EU", title = "Expected Utility of Policy Options for Risk Averse Utility Curve")+
   theme_minimal()
@@ -309,8 +361,6 @@ plot_7
 
 ```
 
-
-#NOTES
 
 ```{r}
 # #define function to calculate SSC
