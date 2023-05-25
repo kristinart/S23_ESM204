@@ -11,13 +11,11 @@ library(here)
 library(tidyverse)
 library(janitor)
 library(dplyr)
-library(pracma)
 library(purrr)
-library(wesanderson)
-library(stargazer)
 library(kableExtra)
-library(equatiomatic)
 library(ggforce)
+library(cowplot)
+library(patchwork)
 ```
 ### Calculating the social cost of carbon (SCC) and policy choice under uncertainty
 ```{r}
@@ -36,7 +34,7 @@ Using damages.csv, estimate a quadratic damage function relating the dollar valu
 #exploratory plot
 plot_0 = ggplot(damages_raw, aes(x = warming, y = damages)) +
   geom_point(shape = 1, color = 'coral3')+
-  labs(x = "Warming", y = "Damages")+
+  labs(x = "Warming (◦C)", y = "Damages ($)")+
   theme_minimal()
 
 #plot_0
@@ -90,9 +88,10 @@ warming_df = warming_raw %>%
          est_damage_p = purrr::map_dbl(.x = warming_pulse, .f = compute_damages), #compute damages for pulse scenario
          diff_damages = est_damage_p - est_damage_bl, #compute difference between above two 
          diff_per_ton = diff_damages/35000000000, #compute difference per ton
-         year = as.factor(year)) #make year a factor for plotting
+         year = as.factor(year), #make year a factor for plotting
+         t = as.numeric(seq(0, 79, 1)))
 
-#pivot longer
+ #pivot longer
 warming_df_longer = warming_df %>% 
   select(-c(warming_baseline, warming_pulse)) %>% #remove columns we don't need
   pivot_longer(cols = "est_damage_bl":"diff_per_ton", names_to = "variable", values_to = "damage") %>% 
@@ -102,7 +101,7 @@ warming_df_longer = warming_df %>%
 plot_2 = ggplot(warming_df_longer, aes(x = year)) +
   geom_point(aes(y = damage), color = "coral3") +
   facet_wrap(~ variable, scales = "free_y", nrow = 2, labeller = as_labeller(c(est_damage_bl = 'A) Baseline Trajectory', est_damage_p='B) Pulse Trajectory', diff_damages = "C) Difference", diff_per_ton ='D) Difference per ton CO2'))) +
-  labs(x = "Year", y = "Damage") +
+  labs(x = "Year", y = "Damages ($)") +
   theme_minimal()
 
 plot_2
@@ -111,27 +110,24 @@ plot_2
 
 ## Question 3
 The SCC is defined as the present discounted value of the stream of future damages caused by one additional ton of CO2.*1* The Obama Administration used a discount rate of 3% to discount damages. The recent EPA update uses a discount rate that changes over time, but starts at 2%. Calculate and make a plot of the SCC (y-axis) against the discount rate (x-axis) for discount rates ranging from 1% to 8%. *1* For the purposes of this homework, you may ignore damages after the year 2100.
-
 ```{r plot_3, out.width="75%", fig.align = 'center', fig.cap = "**Figure 3:** Estimated social cost of carbon (SCC) as a function of discount rate."}
-#define function to calculate SSC
-calculate_SSC = function(r, row_n, col_n){
-  #initialize a starting value for cost
-  TC = 0
+#define function to calculate generic PV
+calculate_PV = function(range, initial_damage, r){
+  #initialize total value
+  total = 0
   
-  #run for loop and add present value damages
-  for(i in row_n){
-    TC = TC + (warming_df[i, col_n] / (1 + r)^2)
+  #run for loop over specified range to calculate PV with discount 
+  for (i in range){
+    total = total + initial_damage/(1 + r)^i
   }
-  
-  return(TC)
-  
+  return(total)
 }
 
 #define discount rates
-r = seq(from = 1, to = 8, by = 0.25)
+r = seq(from = 0.01, to = 0.08, by = 0.001)
 
 #apply function to discount rates
-SCC = map(.x = r, row_n = nrow(warming_df), col_n = 7, .f = calculate_SSC) %>%
+SCC = map(.x = r, initial_damage = warming_df$diff_per_ton[warming_df$t == 0], range = warming_df$t, .f = calculate_PV) %>%
   unlist() %>% 
   as.data.frame() %>% 
   rename("SCC" = 1)
@@ -145,26 +141,33 @@ plot_3 = ggplot(SCC_results, aes(x = r, y = SCC))+
   theme_minimal()
 
 plot_3
+
 ```
 Higher discount rates result in a lower SCC measurement. 
 
 ## Question 4
 The National Academies of Sciences, Engineering, and Medicine advised the government in a 2017 report to use the Ramsey Rule when discounting within the SCC calculation, a recommendation the EPA considered. Recall the Ramsey Rule: r = ρ + ηg
 Using ρ = 0.001, η = 2, and g = 0.01, what is the SCC? Locate this point on your graph from above.
+
+ ́ The “Ramsey Rule”: r = η g + δ
+ ́ η: elasticity of marginal utility of consumption with respect to income (how much more does a poor person value a dollar compared to a rich person?)
+ ́ δ: pure rate of time preference
+ ́ g: growth rate of income over time
+ 
 ```{r plot_4, out.width="75%", fig.align = 'center', fig.cap = "**Figure 4:** Estimated social cost of carbon (SCC) as a function of discount rate. Red dot represents the discount rate and SSC calculated by the Ramsey Rule, which was recommended by the National Academies of Sciences, Engineering, and Medicine."}
 #define variables
 q = 0.001
 n = 2
 g = 0.01
 
-#calculate discount rate
-rr = as.numeric((q + n*g)*100)
-rr_SSC = as.numeric(calculate_SSC(rr, row_n = nrow(warming_df), col_n = 7))
-
+#calculate discount rate and resulting SSC
+rr = as.numeric((q + n*g))
+rr_SSC = as.numeric(calculate_PV(rr, initial_damage = warming_df$diff_per_ton[warming_df$t == 0], range = warming_df$t))
+ 
 #add to plot
 plot_4 = plot_3 +
   geom_point(aes(x = rr, y = rr_SSC), color = 'coral3', size = 4) +
-  geom_text(aes(x = rr, y = rr_SSC), label = "(2.1, 0.82)", hjust = -0.2, vjust = 0.2)
+  geom_text(aes(x = rr, y = rr_SSC), label = "(0.02, 23.50)", hjust = -0.2, vjust = 0.2)
 
 plot_4
 ```
@@ -184,26 +187,27 @@ A costs zero and undertaking Policy B costs X. How large could X be for it to st
 
 ```{r}
 #define discount rate of 2%
-r = 2
+r = 0.02
 
 #define policy A variables
 p = 0.5
 coeff = 1.5
+c = 0
 
 #define function to calculate expected present value under policy A
-compute_EPV_A = function(r, coeff, p){
+compute_EPV_A = function(r, coeff, c, p){
   #calculate the total cost of baseline scenario
-  total_bl = as.numeric(calculate_SSC(r = r, row_n = length(warming_df), col_n = 4))
+  total_bl = as.numeric(calculate_PV(r = r, initial_damage = warming_df$est_damage_bl[warming_df$t == 0], range = warming_df$t))
   
   #calculate the total cost of 1.5 times baseline scenario
   total_1.5 = as.numeric(coeff*total_bl)
   
-  #multiply total costs by probability and add
-  EPV_A = total_bl*p + total_1.5*p
+  #add total benefits, subtract total costs, and multiply by probability 
+  EPV_A = (total_bl + total_1.5 - c)*p
   return(EPV_A)
 }
 
-EPV_A = compute_EPV_A(r = r, coeff = coeff, p = p)
+EPV_A = compute_EPV_A(r = r, coeff = coeff, c = c, p = p)
 
 EPV_A
 
@@ -213,29 +217,38 @@ EPV_A
 
 ```{r}
 #policy B: take immediate and strong action against climate change
+#define policy B variables
 p = 1
+c = 0
 
-compute_EPV_B = function(r, p){
+compute_EPV_B = function(r, c, p){
   
   #calculate the total cost of baseline scenario until year 2050
-  total_pre_2050 = as.numeric(calculate_SSC(r = r, row_n = 30, col_n = 4))
+  total_pre_2050 = as.numeric(calculate_PV(r = r, initial_damage = warming_df$est_damage_bl[warming_df$t == 0], range = seq(0, 29, 1)))
   
   #calculate the total cost once temp stabilizes in 2050 
-  total_post_2050 = as.numeric(warming_df$est_damage_bl[30]*50)
+  total_post_2050 = as.numeric(calculate_PV(r = r, initial_damage = warming_df$est_damage_bl[warming_df$year == 2050], range = seq(0, 50, 1)))
   
-  #add the total costs and multiply by probability
-  EPV_B = (total_pre_2050 + total_post_2050)*p
+  #add the total benefits, subtract total costs and multiply by probability
+  EPV_B = (total_pre_2050 + total_post_2050 - c)*p
   
   return(EPV_B)
 }
 
-EPV_B = compute_EPV_B(r = r, p = p)
-
+#cost of implementation is not included yet
+EPV_B = compute_EPV_B(r = r, c = c, p = p)
 EPV_B
 
 #calculate difference in damages
 EPV_diff = EPV_B - EPV_A
 EPV_diff
+
+#now include implementation cost of Policy B 
+c = EPV_diff
+EPV_B2 = compute_EPV_B(r = r, c = c, p = p)
+
+#check that EPV_B with implementation cost included is equal to EPV_A with implementation cost included
+(round(EPV_B2) == round(EPV_A)) #yes, true
 ```
 
 ```{r}
@@ -249,4 +262,83 @@ table_1
 
 The expected present value (EPV) of damages up to 2100 under Policy A is `r EPV_A` while the expected present value (EPV) of damages up to 2100 under Policy B is `r EPV_B`. Policy B could cost up to `r EPV_diff` to implement and still make economic sense to pursue over Policy A if Policy A cost $0 to implement and the society is risk-neutral. If society were risk averse, Policy B would be more attractive because the outcome cost is certain (due to the 100% probability). In Policy A however, the outcome cost is uncertain. There is a 50% chance warming will follow the baseline and result in lower costs, but there's also a 50% risk that warming will be 1.5 times higher than the baseline and cause more damage.
 
+ New concept: “expected value”
+ ́ Suppose there are N possible “states of the world”
+ ́ Let Bn and Cn be benefit and cost under state of the world n.  ́ Let pn be the probability of state n
+Expected Net Benefit (expected value) = p1(B1-C1) + p2(B2-C2)+...+ pN(BN-CN)
 
+```{r plot_7, out.width="75%", fig.align = 'center', fig.cap = "**Figure 5:** Expected Utility of Policy Options for Risk Neutral and Risk Averse Societies."}
+#graph results based on risk neutral society
+x = seq(0, 5e15, 1e15)
+y = seq(0, 5, 1)
+#y = seq(0, 14, 1)
+
+df = cbind(x,y) %>% 
+  as.data.frame()
+
+plot_5 = ggplot(df, aes(x = x, y = y))+
+  geom_line()+
+  geom_point(aes(x = EPV_A, y = EPV_A/1e15), color = 'coral3', size = 4) +
+  geom_point(aes(x = EPV_B, y = EPV_B/1e15), color = 'coral3', size = 4) +
+  geom_text(aes(x = EPV_A, y = EPV_A/1e15), label = "(EPV(A), EU(A))", hjust = -0.2, vjust = 0.2)+
+  geom_text(aes(x = EPV_B, y = EPV_B/1e15), label = "(EPV(B), EU(B))", hjust = -0.2, vjust = 0.2)+
+  labs(x = "EPV ($)", y = "EU", title = "Expected Utility of Policy Options for Risk Neutral Utility Curve")+
+  theme_minimal()
+
+#plot_5
+
+#define square root function for risk averse
+sqrt_fun <- function(x) {
+  y = (sqrt(x/1e14))
+}
+
+#plot risk averse
+plot_6 = ggplot(df, aes(x = x, y = y)) +
+  geom_function(fun = sqrt_fun)+
+  geom_point(aes(x = EPV_A, y = sqrt_fun(EPV_A)), color = 'coral3', size = 4) +
+  geom_point(aes(x = EPV_B, y = sqrt_fun(EPV_B)), color = 'coral3', size = 4) +
+  geom_text(aes(x = EPV_A, y = sqrt_fun(EPV_A)), label = "(EPV(A), EU(A))", hjust = -0.2, vjust = 0.2)+
+  geom_text(aes(x = EPV_B, y = sqrt_fun(EPV_B)), label = "(EPV(B), EU(B))", hjust = -0.2, vjust = 0.2)+
+  labs(x = "EPV ($)", y = "EU", title = "Expected Utility of Policy Options for Risk Averse Utility Curve")+
+  theme_minimal()
+
+#plot_6
+
+plot_7 = plot_5 + plot_6
+plot_7
+
+```
+
+
+#NOTES
+
+```{r}
+# #define function to calculate SSC
+# calculate_SCC = function(initial_damage, r, t, row_n){
+#   total = 0
+#   
+#   for (i in warming_df$t){
+#     total = total + initial_damage/(1 + r)^i
+#   }
+#   return(TC)
+# }
+# 
+# #define discount rates
+# r = seq(from = 1, to = 8, by = 0.25)
+# 
+# #apply function to discount rates
+# SCC = map(.x = r, initial_damage = warming_df$est_damage_bl[warming_df$t == 0], row_n = nrow(warming_df), .f = calculate_SCC) %>%
+#   unlist() %>% 
+#   as.data.frame() %>% 
+#   rename("SCC" = 1)
+# 
+# SCC_results = cbind(r, SCC)
+# 
+# #plot results
+# plot_3 = ggplot(SCC_results, aes(x = r, y = SCC))+
+#   geom_line(size = 1)+
+#   labs(x = "Discount rate (%)", y = "SCC ($/ton)")+
+#   theme_minimal()
+# 
+# plot_3
+```
