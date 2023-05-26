@@ -1,6 +1,6 @@
 ---
-title: "ESM204_a4_Art_Kristin"
-author: "K.H.Art"
+title: "ESM204_a4_Art_Berkovitz"
+author: "Kristin Art and Simone Berkovitz"
 date: "2023-05-23"
 output: html_document
 ---
@@ -72,7 +72,13 @@ plot_1 = plot_0 +
 #plot_1
 
 ```
+The estimated quadratic damage function is 
+$$y(x) = 0 + -2.05e{12}*x + 3.88e{13}*x^2$$
+where
 
+- *y* is estimated annual total damages ($) and 
+
+- *x* is global mean temperature warming (◦C)
 
 ## Question 2
 Next, we used the estimated damage function to predict total damages in each year under two climate trajectories. The climate trajectories include a "baseline" future climate warming trajectory (in ◦C relative to the pre-industrial period) and a "pulse" trajectory that includes a one-time pulse of 35 billion tons of CO2 to the atmosphere today. Estimated annual damages in each trajectory are shown in Figure 2 alongside the difference in damages between the two scenarios over time and per ton of CO2 (Figure 2).
@@ -93,7 +99,7 @@ warming_df = warming_raw %>%
          diff_damages = est_damage_p - est_damage_bl, #compute difference between above two 
          diff_per_ton = diff_damages/35000000000, #compute difference per ton
          year = as.factor(year), #make year a factor for plotting
-         t = as.numeric(seq(0, 79, 1)))
+         t = as.numeric(seq(0, 79, 1))) #add column for timestep
 
  #pivot longer
 warming_df_longer = warming_df %>% 
@@ -115,7 +121,10 @@ plot_2
 
 
 ## Question 3
-Here, we investigated how discounting influences the calculation of SSC, which is defined as the present discounted value of the stream of future damages caused by one additional ton of CO2. We calculated and plotted the SSC for discount rates betqween 1-8% and found that higher discount rates result in lower SCC values (Figure 3).
+Here, we investigated how discounting influences the calculation of SSC, which is defined as the present discounted value of the stream of future damages caused by one additional ton of CO2. We calculated SCC between 2021-2100 (total of 79 years) for discount rates between 1-8% using the following formula: 
+
+$$\sum_{t = 0}^{79}\frac{damage_t}{(1 + r)^t}    $$
+Results indicate that higher discount rates result in lower SCC values (Figure 3).
 
 ```{r plot_3, out.width="75%", fig.align = 'center', fig.cap = "**Figure 3:** Estimated social cost of carbon (SCC) as a function of discount rate."}
 #define function to calculate generic PV
@@ -182,7 +191,7 @@ rr_SCC = as.numeric(calculate_PV(rr, damages = warming_df$diff_per_ton, range = 
 #add to plot
 plot_4 = plot_3 +
   geom_point(aes(x = rr, y = rr_SCC), color = 'coral3', size = 4) +
-  geom_text(aes(x = rr, y = rr_SCC), label = "(0.02, 144)", hjust = -0.2, vjust = 0.2)
+  geom_text(aes(x = rr, y = rr_SCC), label = "(0.021, 144)", hjust = -0.2, vjust = 0.2)
 
 plot_4
 ```
@@ -194,9 +203,10 @@ The discount rate calculated by the Ramsey Rule is `r rr` and the resulting SCC 
 Lastly, we analyzed two possible climate policies that could be pursued with a discount rate of 2%. 
 
 1. Policy A would involve business as usual emissions, without any substantial climate change mitigation. If Policy A is undertaken, there are two possible outcomes. There is a 0.5 probability that warming will occur and follow the baseline trajectory and a 0.5 probability that warming each year will be 1.5 times higher than that in the baseline trajectory. 
+$$NPV_A = 0.5* (\sum_{t = 0}^{79}\frac{baseline damage_t}{(1 + r)^t}+  (\sum_{t = 0}^{79}\frac{pulse damage_t}{(1 + r)^t} - cost_{implementation})$$
 
 2. Policy B would involve taking immediate and strong action on climate change. If Policy B is undertaken, there is a probability of 1 that warming will continue until 2050 following the baseline trajectory and then will stabilize at 1.29 degrees and stay that way forever. 
-
+$$NPV_B = 1* (\sum_{t = 0}^{29}\frac{baseline damage_t}{(1 + r)^t}+  \sum_{t = 0}^{50}\frac{damage(1.29)}{(1 + r)^t} - cost_{implementation})$$
 
 ```{r}
 #define discount rate of 2%
@@ -204,8 +214,10 @@ r = 0.02
 
 #add columns to warming_df
 warming_df = warming_df %>% 
-  mutate(est_damage_1.5bl = as.numeric(1.5*est_damage_bl), #compute damages for 1.5 times baseline
-         est_damage_stable_t = as.numeric(compute_damages(warming = 1.29))) #compute damages 
+  mutate(warming_1.5bl = as.numeric(1.5*warming_baseline),
+         est_damage_1.5bl = as.numeric(compute_damages(warming_1.5bl)), #compute damages for 1.5 times baseline
+         est_damage_stable_t = as.numeric(compute_damages(warming = 1.29)), #compute damages 
+         t2 = as.numeric(t - 29))
 
 #define policy A variables
 p = 0.5
@@ -235,11 +247,10 @@ c = 0
 compute_EPV_B = function(r, c, p){
   
   #calculate the total cost of baseline scenario until year 2050
-  total_pre_2050 = as.numeric(calculate_PV(r = r, damages = warming_df$est_damage_bl, range = 0:30 ))#seq(0, 29, 1)))
+  total_pre_2050 = as.numeric(calculate_PV(r = r, damages = warming_df$est_damage_bl, range = 0:29))
   
   #calculate the total cost once temp stabilizes in 2050 
-  total_post_2050 = as.numeric(calculate_PV(r = r, damages = warming_df$est_damage_stable_t, range = 31:79)) #seq(29, 79, 1)))
-  
+  total_post_2050 = as.numeric(calculate_PV(r = r, damages = warming_df$est_damage_stable_t, range = 0:50)) 
   #add the total benefits, subtract total costs and multiply by probability
   EPV_B = (total_pre_2050 + total_post_2050 - c)*p
   
@@ -254,17 +265,17 @@ EPV_B
 EPV_diff = EPV_A - EPV_B
 EPV_diff
 
-#now include implementation cost of Policy B 
-c = EPV_diff
+#now include implementation cost of Policy B as a check
+c = -EPV_diff 
 EPV_B2 = compute_EPV_B(r = r, c = c, p = p)
 EPV_B2 = abs(EPV_B2)
-EPV_A
+
 #check that EPV_B with implementation cost included is equal to EPV_A with implementation cost included
-round(EPV_B2) == round(EPV_A)
-(abs((round(EPV_B2))) == abs(round(EPV_A))) #yes, true
+round(EPV_B2) == round(EPV_A) #yes, true
 ```
 
 ```{r}
+#show results in table
 EPV_results = cbind(EPV_A, EPV_B) %>% 
   as.data.frame()
 
@@ -277,10 +288,10 @@ $`r EPV_B`. Policy B could cost up to
 $`r EPV_diff` to implement and still make economic sense to pursue over Policy A if Policy A cost 
 $0 to implement and the society is risk-neutral. 
 
-If society were risk averse, Policy B would be more attractive because the outcome cost is certain (due to the 100% probability). In Policy A however, the outcome cost is uncertain. There is a 50% chance warming will follow the baseline and result in lower costs, but there's also a 50% risk that warming will be 1.5 times higher than the baseline and cause more damage.
+If society were risk averse, Policy B would be more attractive because the outcome is certain (due to the 100% probability). In Policy A however, the outcome is uncertain. There is a 50% chance warming will follow the baseline and result in lower damages, but there's also a 50% risk that warming will be 1.5 times higher than the baseline and cause more damages.
 
-NOTES BELOW THIS
-
+## NOTES
+Notes to be deleted
  New concept: “expected value”
  ́ Suppose there are N possible “states of the world”
  ́ Let Bn and Cn be benefit and cost under state of the world n.  ́ Let pn be the probability of state n
